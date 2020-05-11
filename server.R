@@ -3,8 +3,6 @@
 #### R.server script for PnB Designer
 ## DataTableOutput is produced for displaying the resulting oligos
 
-
-
 # install.packages("devtools")
 # install.packages("crayon")
 # install.packages("shiny")
@@ -73,7 +71,6 @@ shinyServer(function(input, output, session) {
 ## ObserveEvent function to start a search round throught the genome after search button is pressed:
   
   observeEvent(input$search, {
-    
    
     ## Target genome is chosen by the selected genome in the User Interface
     
@@ -117,7 +114,6 @@ shinyServer(function(input, output, session) {
 
       if(input$Mode == "Single Sample Run")
       {
-
         
     ## Correction of the different Chromosome notation in the Rice genome (Chr6 instead of chr6 in all other genomes)
   
@@ -147,8 +143,6 @@ shinyServer(function(input, output, session) {
       if(input$Editing == "Base editing")
         
       {
-        
-        
     # DownloadButton is implemented in the UI, producing a .csv ouput file:
         
         output$downloadData <- downloadHandler(
@@ -320,11 +314,11 @@ shinyServer(function(input, output, session) {
                         
                         tmp <- 5+l
                         tmp2 <- rbind(tmp2,tmp)
-                        print("yeha")
+                        
                         
                       }else{
                         
-                        print("bla")
+                        
                       }
                     }
                     
@@ -442,10 +436,7 @@ shinyServer(function(input, output, session) {
               {
                 {
                   if (grepl( "AGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(plus_perfecteditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE ){
-                    
-                    #print(plus_perfecteditabledf[i,2])
-                    #print(FANCA_char[perfect_editable_sense[i,1]])
-                    
+
                     Guide <- c(plus_perfecteditabledf[i,1],substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],18+j,37+j),26-(17+j),substr(plus_perfecteditabledf[i,2], j,j+2),"ABEmax/ABE8e")
                   
                     tmp2 <- NULL
@@ -460,11 +451,8 @@ shinyServer(function(input, output, session) {
                         
                         tmp <- 5+l
                         tmp2 <- rbind(tmp2,tmp)
-                        print("yeha")
                         
-                      }else{
                         
-                        print("bla")
                       }
                     }
       
@@ -473,8 +461,6 @@ shinyServer(function(input, output, session) {
                     tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                     tmp3 <- data.frame(tmp3)
                     tmp4 <- data.frame(tmp3)
-                    
-                    
                     nrow(tmp3)
                     
                     t <- 0
@@ -553,7 +539,6 @@ shinyServer(function(input, output, session) {
           for(i in 1:length(PerfectUpstreamPAM_NGA))
           {
             if (grepl( "AGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectUpstreamPAM_NGA[i]) == TRUE ){    
-              #print(c(i,PerfectUpstreamPAM_NGA[i]))
               tmp <- c(i,PerfectUpstreamPAM_NGA[i])
               minus_perfecteditable_NGA <- rbind(minus_perfecteditable_NGA,tmp)
               
@@ -575,12 +560,9 @@ shinyServer(function(input, output, session) {
               {
                 {
                   if (grepl( "AGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(minus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
-                    
-                    #print(minus_perfecteditabledf_NGA[i,2])
-                    #print(FANCA_char[perfect_editable_sense[i,1]])
+
                     Guide <- c(minus_perfecteditabledf_NGA[i,1],substr(Seq_minus_char_NGA[minus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax")
-                    
-                    
+
                     tmp2 <- NULL
                     
                     Download <- rbind(Download,Guide[2])
@@ -595,11 +577,7 @@ shinyServer(function(input, output, session) {
                         
                         tmp <- 3+l
                         tmp2 <- rbind(tmp2,tmp)
-                        #print("yeha")
-                        
-                      }else{
-                        
-                        #print("bla")
+ 
                       }
                     }
                     
@@ -667,8 +645,6 @@ shinyServer(function(input, output, session) {
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
             substr(Seq_plus_char_NGA, start = 26, stop = 26) <- "A"
-            
-          
           
           ## Perfect edible: NG-ABEmax window 4-6 (PAM: NGA)
           
@@ -676,17 +652,13 @@ shinyServer(function(input, output, session) {
 
           ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
           
-          
           plus_perfecteditable_NGA <- NULL;
           
           for(i in 1:length(PerfectDownstreamPAM_NGA))
           {
             if (grepl( "AGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectDownstreamPAM_NGA[i]) == TRUE ){    
-              #print(c(i,PerfectDownstreamPAM_NGA[i]))
               tmp <- c(i,PerfectDownstreamPAM_NGA[i])
               plus_perfecteditable_NGA <- rbind(plus_perfecteditable_NGA,tmp)
-              
-              
             }
           }
           
@@ -699,15 +671,12 @@ shinyServer(function(input, output, session) {
             
             plus_perfecteditabledf_NGA$X1 <- as.numeric(nrow(plus_perfecteditable_NGA))
             
-        
             for (i in 1:nrow(plus_perfecteditabledf_NGA))
               for (j in 1:(nchar(plus_perfecteditabledf_NGA[1,2])-2))
               {
                 {
                   if (grepl( "AGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(plus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
-                    
-                    #print(plus_perfecteditabledf_NGA[i,2])
-                    #print(FANCA_char[perfect_editable_sense[i,1]])
+
                     Guide <- c(plus_perfecteditabledf_NGA[i,1],substr(Seq_plus_char_NGA[plus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax")
                     tmp2 <- NULL
                     
@@ -723,11 +692,7 @@ shinyServer(function(input, output, session) {
                         
                         tmp <- 3+l
                         tmp2 <- rbind(tmp2,tmp)
-                        print("yeha")
                         
-                      }else{
-                        
-                        print("bla")
                       }
                     }
                     
@@ -760,8 +725,6 @@ shinyServer(function(input, output, session) {
                         
                       }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                       {
-                        
-                        
                         Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                         tmp4 <- tmp4[] + 43
                         
@@ -770,13 +733,8 @@ shinyServer(function(input, output, session) {
                       
                       
                     }
-                    
-                    
                     guides <- rbind(guides,Guide)
-                    
-                    
-                    
-                    
+
                   }
                 }
               }
@@ -866,11 +824,7 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
-                        }else{
-                          
-                          #print("bla")
                         }
                       }
                       
@@ -900,8 +854,7 @@ shinyServer(function(input, output, session) {
                           
                         }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                         {
-                          
-                          
+
                           Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                           tmp4 <- tmp4[] + 43
                           
@@ -910,13 +863,9 @@ shinyServer(function(input, output, session) {
                         
                         
                       }
-                      
-                      
+
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -975,20 +924,13 @@ shinyServer(function(input, output, session) {
               plus_perfecteditable_NGCGdf$X2 <- as.character(plus_perfecteditable_NGCGdf$X2)
               
               plus_perfecteditable_NGCGdf$X1 <- as.numeric(nrow(plus_perfecteditable_NGCG))
-              
-              
-              
-              
+
               for (i in 1:nrow(plus_perfecteditable_NGCGdf))
                 for (j in 1:(nchar(plus_perfecteditable_NGCGdf[1,2])-3))
                 {
                   {
                     if (grepl( "AGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "GGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "CGCG", substr(plus_perfecteditable_NGCGdf[i,2],j,j+3)) == TRUE || grepl( "TGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE ){
                       
-                      
-                      
-                      #print(plus_perfecteditable_NGCGdf[i,2])
-                      #print(FANCA_char[perfect_editable_sense[i,1]])
                       Guide <- c(plus_perfecteditable_NGCGdf[i,1],substr(Seq_plus_char_NGCG[plus_perfecteditable_NGCGdf[i,1]],19+j,38+j),25-(17+j),substr(plus_perfecteditable_NGCGdf[i,2], j,j+3),"NG-ABEmax/ABE8e")
                       tmp2 <- NULL
                       
@@ -1004,11 +946,7 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
-                        }else{
-                          
-                          #print("bla")
                         }
                       }
                       
@@ -1048,13 +986,9 @@ shinyServer(function(input, output, session) {
                         
                         
                       }
-                      
-                      
+
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -1090,8 +1024,7 @@ shinyServer(function(input, output, session) {
             PerfectUpstreamPAM_NNGRRT <- as.character(substr(Seq_minus_char_NNGRRT, 36,49))  
             
             print(PerfectUpstreamPAM_NNGRRT)
-            
-            
+
             # 'minus_perfecteditable_NNGRRT' object is created to store found PAM candidates:
             
             minus_perfecteditable_NNGRRT <- NULL
@@ -1102,11 +1035,10 @@ shinyServer(function(input, output, session) {
             for(i in 1:length(PerfectUpstreamPAM_NNGRRT))
             {
               if (grepl( "GAAT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GAGT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GGGT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GGAT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE ){    
-                #print(c(i,PerfectUpstreamPAM_NNGRRT[i]))
+                
                 tmp1 <- c(i,PerfectUpstreamPAM_NNGRRT[i])
                 minus_perfecteditable_NNGRRT <- rbind(minus_perfecteditable_NNGRRT,tmp1)
-                
-                
+
               }
             }
             
@@ -1147,11 +1079,7 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 2+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
-                        }else{
-                          
-                          #print("bla")
                         }
                       }
                       
@@ -1181,8 +1109,7 @@ shinyServer(function(input, output, session) {
                           
                         }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                         {
-                          
-                          
+
                           Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                           tmp4 <- tmp4[] + 43
                           
@@ -1194,9 +1121,7 @@ shinyServer(function(input, output, session) {
                       
                       
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -1254,10 +1179,7 @@ shinyServer(function(input, output, session) {
               plus_perfecteditable_NNGRRTdf$X2 <- as.character(plus_perfecteditable_NNGRRTdf$X2)
               
               plus_perfecteditable_NNGRRTdf$X1 <- as.numeric(nrow(plus_perfecteditable_NNGRRT))
-              
-              
-              
-              
+
               for (i in 1:nrow(plus_perfecteditable_NNGRRTdf))
                 for (j in 1:(nchar(plus_perfecteditable_NNGRRTdf[1,2])-3))
                 {
@@ -1278,15 +1200,9 @@ shinyServer(function(input, output, session) {
                         {
                           
                           tmp <- 2+l
-                          tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
-                          
-                        }else{
-                          
-                          #print("bla")
+                          tmp2 <- rbind(tmp2,tmp) 
                         }
                       }
-                      
                       
                       tmp2df <- data.frame(tmp2)
                       tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
@@ -1323,13 +1239,9 @@ shinyServer(function(input, output, session) {
                         
                         
                       }
-                      
-                      
+
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -1420,14 +1332,8 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
-                        
                         
                         tmp2df <- data.frame(tmp2)
                         tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
@@ -1460,9 +1366,7 @@ shinyServer(function(input, output, session) {
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
                         
                         
@@ -1502,9 +1406,7 @@ shinyServer(function(input, output, session) {
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input" )
           {
             substr(Seq_plus_char_NNHRRT, start = 26, stop = 26) <- "A"
-            
-            
-            
+
             # For Base editing guides on the Plus Strand:
             
             # Perfect edible window: For SaKKH-ABEmax  NNHRRT PAM (Editing Position: 4; 6-12)
@@ -1528,17 +1430,13 @@ shinyServer(function(input, output, session) {
             }
             
             if(is.null(plus_perfecteditable_NNHRRT) != TRUE) {
-              
-              
+
               plus_perfecteditable_NNHRRTdf <- data.frame(plus_perfecteditable_NNHRRT)
               
               plus_perfecteditable_NNHRRTdf$X2 <- as.character(plus_perfecteditable_NNHRRTdf$X2)
               
               plus_perfecteditable_NNHRRTdf$X1 <- as.numeric(nrow(plus_perfecteditable_NNHRRT))
-              
-              
-              
-              
+
               for (i in 1:nrow(plus_perfecteditable_NNHRRTdf))
                 for (j in 1:(nchar(plus_perfecteditable_NNHRRTdf[1,2])-3))
                 {
@@ -1562,11 +1460,6 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -1602,11 +1495,8 @@ shinyServer(function(input, output, session) {
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
                         
                         guides <- rbind(guides,Guide)
                         
@@ -1620,7 +1510,6 @@ shinyServer(function(input, output, session) {
                     }
                   }
                 }
-              
             }
             
           }else{
@@ -1630,27 +1519,22 @@ shinyServer(function(input, output, session) {
           }
           
         }
-        
- 
+
 #---------------------------------------------#    
 
         # Guide search For SpG-ABEmax (NGC PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
         if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
-          
-          
+
           if (("G" == substr(Seq_minus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input" )
           {
             substr(Seq_minus_char_NGC, start = 26, stop = 26) <- "A"
-            
-            
-            
+
             ## Perfect edible: SpG-ABEmax window 5-6 (PAM: NGC)
             
             PerfectUpstreamPAM_NGC <- substr(Seq_minus_char_NGC, 41,44)  
-            
-            
+
             ## Target Plus Strand C>T or Minus Strand G>A
             
             minus_perfecteditable_NGC <- NULL;
@@ -1660,8 +1544,6 @@ shinyServer(function(input, output, session) {
               if (grepl( "AGC", PerfectUpstreamPAM_NGC[i]) == TRUE || grepl( "GGC", PerfectUpstreamPAM_NGC[i]) == TRUE || grepl( "CGC", PerfectUpstreamPAM_NGC[i]) == TRUE || grepl( "TGC", PerfectUpstreamPAM_NGC[i]) == TRUE ){    
                 tmp <- c(i,PerfectUpstreamPAM_NGC[i])
                 minus_perfecteditable_NGC <- rbind(minus_perfecteditable_NGC,tmp)
-                
-                
               }
             }
             
@@ -1673,15 +1555,12 @@ shinyServer(function(input, output, session) {
               
               minus_perfecteditabledf_NGC$X1 <- as.numeric(nrow(minus_perfecteditable_NGC))
               
-              
               for (i in 1:nrow(minus_perfecteditabledf_NGC))
                 for (j in 1:(nchar(minus_perfecteditabledf_NGC[1,2])-2))
                 {
                   {
                     if (grepl( "AGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(minus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
-                      
-                      #print(minus_perfecteditabledf_NGA[i,2])
-                      #print(FANCA_char[perfect_editable_sense[i,1]])
+
                       Guide <- c(minus_perfecteditabledf_NGC[i,1],substr(Seq_minus_char_NGC[minus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax")
                       tmp2 <- NULL
                       
@@ -1697,14 +1576,8 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
-                          
-                        }else{
-                          
-                          #print("bla")
                         }
                       }
-                      
                       
                       tmp2df <- data.frame(tmp2)
                       tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
@@ -1731,23 +1604,16 @@ shinyServer(function(input, output, session) {
                           
                         }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                         {
-                          
-                          
+
                           Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                           tmp4 <- tmp4[] + 43
                           
                         }
-                        
-                        
-                        
+
                       }
-                      
-                      
+
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -1764,21 +1630,17 @@ shinyServer(function(input, output, session) {
         # For Base editing guides on the Plus Strand:
         
         if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
-          
-          
+
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
             substr(Seq_plus_char_NGC, start = 26, stop = 26) <- "A"
-            
-            
-            
+
             ## Perfect edible: SpG-ABEmax window 5-6 (PAM: NGC)
             
             PerfectDownstreamPAM_NGC <- substr(Seq_plus_char_NGA, 41,44) 
             
             ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
-            
-            
+
             plus_perfecteditable_NGC <- NULL;
             
             for(i in 1:length(PerfectDownstreamPAM_NGC))
@@ -1799,16 +1661,13 @@ shinyServer(function(input, output, session) {
               plus_perfecteditabledf_NGC$X2 <- as.character(plus_perfecteditabledf_NGC$X2)
               
               plus_perfecteditabledf_NGC$X1 <- as.numeric(nrow(plus_perfecteditable_NGC))
-              
-              
+
               for (i in 1:nrow(plus_perfecteditabledf_NGC))
                 for (j in 1:(nchar(plus_perfecteditabledf_NGC[1,2])-2))
                 {
                   {
                     if (grepl( "AGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(plus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
-                      
-                      #print(plus_perfecteditabledf_NGA[i,2])
-                      #print(FANCA_char[perfect_editable_sense[i,1]])
+
                       Guide <- c(plus_perfecteditabledf_NGC[i,1],substr(Seq_plus_char_NGC[plus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax")
                       tmp2 <- NULL
                       
@@ -1824,11 +1683,7 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
-                          
-                        }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -1864,9 +1719,7 @@ shinyServer(function(input, output, session) {
                           tmp4 <- tmp4[] + 43
                           
                         }
-                        
-                        
-                        
+
                       }
                       
                       
@@ -1884,8 +1737,7 @@ shinyServer(function(input, output, session) {
             a <- NULL
             
           }
-          
-          
+
         }
  
 #---------------------------------------------#    
@@ -1894,21 +1746,17 @@ shinyServer(function(input, output, session) {
         # For Base editing guides on the Minus Strand:
         
         if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
-          
-          
+
           if (("G" == substr(Seq_minus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input" )
           {
             substr(Seq_minus_char_NYN, start = 26, stop = 26) <- "A"
-            
-            
-            
+
             ## Perfect edible: SpRY-ABEmax window 5-7 (PAM: NYN)
             
             PerfectUpstreamPAM_NYN <- substr(Seq_minus_char_NYN, 42,44)  
             
             print(PerfectUpstreamPAM_NYN)
-            
-            
+
             ## Target Plus Strand C>T or Minus Strand G>A
             
             minus_perfecteditable_NYN <- NULL;
@@ -1916,10 +1764,8 @@ shinyServer(function(input, output, session) {
             for(i in 1:length(PerfectUpstreamPAM_NYN))
             {
               if (grepl( "C", PerfectUpstreamPAM_NYN[i]) == TRUE || grepl( "T", PerfectUpstreamPAM_NYN[i]) == TRUE || grepl( "A", PerfectUpstreamPAM_NYN[i]) == TRUE){    
-                #print(c(i,PerfectUpstreamPAM_NGA[i]))
                 tmp <- c(i,PerfectUpstreamPAM_NYN[i])
                 minus_perfecteditable_NYN <- rbind(minus_perfecteditable_NYN,tmp)
-                
                 
               }
             }
@@ -1931,8 +1777,7 @@ shinyServer(function(input, output, session) {
               minus_perfecteditabledf_NYN$X2 <- as.character(minus_perfecteditabledf_NYN$X2)
               
               minus_perfecteditabledf_NYN$X1 <- as.numeric(nrow(minus_perfecteditable_NYN))
-              
-              
+
               for (i in 1:nrow(minus_perfecteditabledf_NYN))
                 for (j in 1:(nchar(minus_perfecteditabledf_NYN[1,2])-2))
                 {
@@ -1955,15 +1800,9 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
-                          
-                        }else{
-                          
-                          #print("bla")
                         }
                       }
-                      
-                      
+
                       tmp2df <- data.frame(tmp2)
                       tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                       tmp3 <- data.frame(tmp3)
@@ -1982,15 +1821,13 @@ shinyServer(function(input, output, session) {
                           
                         }else if(as.numeric(tmp3[b,]) == as.numeric(Guide[3]))
                         {
-                          
                           Guide[2] <- paste(substr(Guide[2],1,as.numeric(as.numeric(Guide[3])+t-1)),"<strong><font color='red'>A</font></strong>",substring(Guide[2], first = as.numeric(as.numeric(Guide[3])+t+1)), sep = "")
                           tmp4 <- tmp4[] + 42
                           
                           
                         }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                         {
-                          
-                          
+
                           Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                           tmp4 <- tmp4[] + 43
                           
@@ -1999,12 +1836,9 @@ shinyServer(function(input, output, session) {
                         
                         
                       }
-                      
-                      
+
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -2026,15 +1860,11 @@ shinyServer(function(input, output, session) {
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
             substr(Seq_plus_char_NYN, start = 26, stop = 26) <- "A"
-            
-            
-            
+
             ## Perfect edible: SpRY-ABEmax window 5-7 (PAM: NYN)
             
             PerfectDownstreamPAM_NYN <- substr(Seq_plus_char_NYN, 42,44) 
-            
-            print(PerfectDownstreamPAM_NYN)
-            
+
             ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
             
             
@@ -2082,15 +1912,9 @@ shinyServer(function(input, output, session) {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
-                          
-                        }else{
-                          
-                          #print("bla")
                         }
                       }
-                      
-                      
+
                       tmp2df <- data.frame(tmp2)
                       tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                       tmp3 <- data.frame(tmp3)
@@ -2129,11 +1953,7 @@ shinyServer(function(input, output, session) {
                       
                       
                       guides <- rbind(guides,Guide)
-                      
-                      
-                      
-                      
-                      
+
                     }
                   }
                 }
@@ -2161,8 +1981,7 @@ shinyServer(function(input, output, session) {
             "Could not find a matching sequence, please check your Substitution!"
           })
         }
-   
-       
+
         # Reactive data.frame is created based on the 'guides' object
         # OutputDataTable is generated with the DT package; Change is marked with html tags (red, strong)
           
@@ -2184,10 +2003,7 @@ shinyServer(function(input, output, session) {
                                                     });
                                                  })'
             
-            
-            
-            
-            
+
           ),
           )
           
@@ -2195,8 +2011,7 @@ shinyServer(function(input, output, session) {
           currentguidesdf2 <- reactive({guidesdf <- data.frame("Variant" = input$Variant2, "Protospacer" = Download , "EditPos." = guides[,3], "PAM" = guides[,4], "Base Editor" = guides[,5] ) })
           
           output$mytable2 <- DT::renderDataTable({ currentguidesdf2()}, caption = "Download Table",options = list(dom = 't'), escape = FALSE)
-          
-          
+
         } 
         if((is.null(a) != TRUE) & (is.null(guides) == TRUE)){
           
@@ -2208,7 +2023,6 @@ shinyServer(function(input, output, session) {
           })
         }
      
-
         # Output control ouput: Check if object 'a' is not NULL (input SNP was correctly assigned),
         #                       but no guides have been assigned to the object 'guides':
         # -> No guides could be designed for this variant, with the Base editors installed.
@@ -2242,11 +2056,8 @@ shinyServer(function(input, output, session) {
         
         guides <- NULL
         
-    
 #-------------------------------------# 
     
-      
-        
       # Correcting a patient mutation using Prime Editing:
         
         # Check if there is an input in the 'Mutation' input window, but not in the 'Edit' input window:
@@ -2261,8 +2072,7 @@ shinyServer(function(input, output, session) {
           
           if((as.character(input$`Gene Orientation`) == "-") == TRUE) 
           {
-            
-            
+
             if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)))[c(as.character(Chromosome))])) != TRUE)
             {
               
@@ -2310,7 +2120,6 @@ shinyServer(function(input, output, session) {
               
               anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
               
-              
               x <- nchar(as.character(DNAchange))
               
               u <- nchar(as.character(DNAchange))
@@ -2321,8 +2130,6 @@ shinyServer(function(input, output, session) {
               
               Seq_plus_rev_char_n <- paste(substr(Seq_plus_rev_char, start = 1, stop = 75),as.character(anti_DNAchange), substr(Seq_plus_rev_char, start = 76, stop = 151), sep = "")
               Seq_minus_char_n <- paste(substr(Seq_minus_char, start = 1, stop = 75),as.character(DNAchange), substr(Seq_minus_char, start = 76, stop = 151), sep = "")
-              
-              
             }
             
             # In case of the selection of a deletion, the input sequence is converted into a DNAStringSet
@@ -2409,8 +2216,7 @@ shinyServer(function(input, output, session) {
                 
               }
             }
-            
-            
+
             # patient character string is now searched for suitable PAM sequences:
 
             # Substring for PAM to search for PAM in the editing range of prime editing:
@@ -2439,12 +2245,10 @@ shinyServer(function(input, output, session) {
             for(i in 1:length(primeUpstreamPAM))
             {
               if (grepl( "AGG", primeUpstreamPAM[i]) == TRUE || grepl( "CGG", primeUpstreamPAM[i]) == TRUE || grepl( "GGG", primeUpstreamPAM[i]) == TRUE || grepl( "TGG", primeUpstreamPAM[i]) == TRUE ){
-                
-                
+
                 temp <- c(i,primeUpstreamPAM[i])
                 primeeditable <- rbind(primeeditable, temp)
-                
-                
+
               }
             }
             
@@ -2468,12 +2272,10 @@ shinyServer(function(input, output, session) {
             for(i in 1:length(primeUpstreamPAM2))
             {
               if (grepl( "GGA", primeUpstreamPAM2[i]) == TRUE || grepl( "GGC", primeUpstreamPAM2[i]) == TRUE || grepl( "GGG", primeUpstreamPAM2[i]) == TRUE || grepl( "GGT", primeUpstreamPAM2[i]) == TRUE ){
-                
-                
+
                 temp <- c(i,primeUpstreamPAM2[i])
                 primeeditable2 <- rbind(primeeditable2, temp)
-                
-                
+
               }
             }
             
@@ -2510,9 +2312,7 @@ shinyServer(function(input, output, session) {
                       {
                         
                         Guide <- c("1",substr(Seq_minus_char_n[primeeditabledf[i,1]],j-16,j+3),76-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char[primeeditabledf[i,1]],(j+1) - as.numeric(input$PBS),((j+1) - (as.numeric(input$PBS)))+ (as.numeric(input$RT)+as.numeric(input$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Sense")
-                        
-                        
-                        
+
                         # Modify Protospacer to enhance transcription: (Add 3'-G to Protospacer if there is no G)
                         
                         if(substr(Seq_minus_char_n[primeeditabledf[i,1]],j-16,j-16) != "G")
@@ -2547,13 +2347,11 @@ shinyServer(function(input, output, session) {
    
 
                         Guide[8] <- paste(substring(Guide[4],1,(-1)+as.numeric(input$RT)-((as.numeric(Guide[3])-1+m+n))),as.character(anti_DNAchange_char_tagged), substring(Guide[4], first = ((as.numeric(input$RT))-(as.numeric(Guide[3])-2+p))), sep = "")
-                        
-                        
+
                         Guide[7] <- as.numeric(Guide[7]) - as.numeric(Guide[3])
                         
                         guides <- rbind(guides,Guide)
-                        
-                      
+
                         }
                         }
                       
@@ -2625,9 +2423,7 @@ shinyServer(function(input, output, session) {
                 
                 
               }
-              
-              
-              
+
               if (is.null(guides)!= TRUE)
               {
                 
@@ -2636,12 +2432,10 @@ shinyServer(function(input, output, session) {
                     
                     DNAchange_char_tagged <- anti_DNAchange_char_tagged
                     
-                  }else{}
-                  
-                  
+                  }
+
                 }
-                
-                
+
                 if(any(((as.numeric(guides[,3])+u-z) <= input$RT) || (as.numeric(guides[,3])+u-z >= 0)))
                 {
                   guides <- subset(guides, as.numeric(guides[,3])+u-z <= input$RT)
@@ -2655,12 +2449,9 @@ shinyServer(function(input, output, session) {
                 
                 if(is.null(c) || is.null(d) != TRUE)
                 {
-                  
-                  
-                  
+
                   currentguidesdf <- reactive({ 
-                    
-                    
+
                     guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding_strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
                     guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
                     
@@ -2670,7 +2461,6 @@ shinyServer(function(input, output, session) {
                 
                 
               }
-              
               
             }
             
@@ -2683,11 +2473,9 @@ shinyServer(function(input, output, session) {
               
               guides <- 1
             }
-            
-            
+
             }
-            
-          
+
           if((as.character(input$`Gene Orientation`) == "+") == TRUE)
           {
             
@@ -2714,10 +2502,9 @@ shinyServer(function(input, output, session) {
             
             Seq_minus_char_n <- Seq_minus_char
             Seq_minus_rev_char_n <- Seq_minus_rev_char
+
             
-            
-            
-            if ((substr(input$Mutation,1,3) == "ins")==TRUE){
+              if ((substr(input$Mutation,1,3) == "ins")==TRUE){
               
               DNAchange <- DNAStringSet(substring(input$Mutation, first = 4))
               anti_DNAchange <- complement(DNAchange)
@@ -2730,7 +2517,6 @@ shinyServer(function(input, output, session) {
               anti_DNAchange_char <- paste("[",as.character(reverse(anti_DNAchange)),"]" ,sep = "")
               
               anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
-             
               
               x <- nchar(as.character(DNAchange))
               
@@ -2753,24 +2539,19 @@ shinyServer(function(input, output, session) {
               anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
               
               anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
-              
-              
-              
+
               z <- nchar(as.character(DNAchange))
-              
-              
+                
               x <- nchar(as.character(DNAchange))
               
               x <- as.numeric(x)* (-1)  
-              
               
               if(((substr(Seq_plus, start = 76, stop = 75+z)) == (as.character(DNAchange)))){
                 
                 Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = 75), substr(Seq_plus_char, start = 76-x, stop = 151), sep = "")
                 
                 Seq_minus_rev_char_n <- paste(substr(Seq_minus_rev_char, start = 1, stop = 75), substr(Seq_minus_rev_char, start = 76-x, stop = 151), sep = "")
-                
-                
+
               }else{
                 
                 b <- NULL
@@ -2779,8 +2560,7 @@ shinyServer(function(input, output, session) {
               
               
             }else if(grepl(">", input$Mutation) == TRUE) { 
-              
-              
+
               x <- 0
               y <- 0
               y <- ((nchar(input$Mutation))-1)/2
@@ -2816,13 +2596,9 @@ shinyServer(function(input, output, session) {
                 
               }
             }
-            
-            
+
             ## Searchig for sense PAM in Prime editing 
-            
-            
-            
-            
+
             ## Upstream PAM for PRIME 
             
             primeUpstreamPAM <- substr(Seq_plus_char_n, 5,81)  
@@ -2830,27 +2606,19 @@ shinyServer(function(input, output, session) {
             # smaller search area, since large deletions can otherwise not be searched for (large x):
             
             primeUpstreamPAM2 <- substr(Seq_minus_rev_char_n,71+x+y,110+x+y)
-            
-            
-            
-            
+
             ## prime edits possible:
-            
-            
+
             ## Sense strand
             
             primeeditable <- NULL;
-            
-            
+
             for(i in 1:length(primeUpstreamPAM))
             {
               if (grepl( "AGG", primeUpstreamPAM[i]) == TRUE || grepl( "CGG", primeUpstreamPAM[i]) == TRUE || grepl( "GGG", primeUpstreamPAM[i]) == TRUE || grepl( "TGG", primeUpstreamPAM[i]) == TRUE ){
-                
-                
                 temp <- c(i,primeUpstreamPAM[i])
                 primeeditable <- rbind(primeeditable, temp)
-                
-                
+
               }
             }
             
@@ -2861,33 +2629,25 @@ shinyServer(function(input, output, session) {
             
             primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
             
-            
-            
-            
             ## AntiSense strand
             
             primeeditable2 <- NULL;
             
-            
             for(i in 1:length(primeUpstreamPAM2))
             {
               if (grepl( "GGA", primeUpstreamPAM2[i]) == TRUE || grepl( "GGC", primeUpstreamPAM2[i]) == TRUE || grepl( "GGG", primeUpstreamPAM2[i]) == TRUE || grepl( "GGT", primeUpstreamPAM2[i]) == TRUE ){
-                
-                
+
                 temp <- c(i,primeUpstreamPAM2[i])
                 primeeditable2 <- rbind(primeeditable2, temp)
-                
-                
+
               }
             }
-            
-            
+
             primeeditable2df <- data.frame(primeeditable2)
             
             primeeditable2df$X2 <- as.character(primeeditable2df$X2)
             
             primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
-            
             
             if(is.null(a) != TRUE & is.null(b) != TRUE){
               
@@ -2933,9 +2693,7 @@ shinyServer(function(input, output, session) {
                           Guide[7] <- as.numeric(Guide[7])-6 
                           
                         }
-                        
-                        
-                        
+
                         Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
                         
                         Guide[8] <- paste(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+(z)+y))),as.character(anti_DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT))-(as.numeric(Guide[3])))), sep = "")
@@ -2943,9 +2701,7 @@ shinyServer(function(input, output, session) {
                         guides <- rbind(guides,Guide)
                         
                       }
-                      
 
-                      
                     } 
                   }
                 }
@@ -3080,10 +2836,7 @@ shinyServer(function(input, output, session) {
             
             
           }) 
-          
-          
-          
-          
+
           if(is.null(a)== TRUE){
             
             output$myText <- renderText({
@@ -3150,8 +2903,7 @@ shinyServer(function(input, output, session) {
  
       else if ((nchar(input$Edit) > 2) & (nchar(input$Mutation) < 2) || input$SequenceInput == "Sequence input")
         {
-      
-        
+
         if((as.character(input$`Gene Orientation`) == "-") == TRUE)
         {
           c <- 1
@@ -3162,18 +2914,15 @@ shinyServer(function(input, output, session) {
           
           ### Get sequence for Plus Strand
           if ((substr(as.character(input$Edit),1,3) == "del")==TRUE){
-            
-            
+
           m <- nchar(substring(as.character(input$Edit), first = 4))-1
-            
-            
+
           Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = (as.numeric(input$Position)+m)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
           
           }else{
             
           Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
-            
-            
+
           }
           ### Get Sequence for Minus Strand
           
@@ -3186,8 +2935,7 @@ shinyServer(function(input, output, session) {
           Seq_plus_char <- as.character(Seq_plus)
           Seq_plus_rev_char <- as.character(Seq_plus_rev)
           Seq_minus_rev_char <- as.character(Seq_minus_rev)
-          
-          
+
           if ((substr(as.character(input$Edit),1,3) == "ins")==TRUE){
             
             DNAchange <- DNAStringSet(substring(as.character(input$Edit), first = 4))
@@ -3210,8 +2958,7 @@ shinyServer(function(input, output, session) {
             
             Seq_plus_rev_char_n <- paste(substr(Seq_plus_rev_char, start = 1, stop = 75),as.character(anti_DNAchange), substr(Seq_plus_rev_char, start = 76, stop = 151), sep = "")
             Seq_minus_char_n <- paste(substr(Seq_minus_char, start = 1, stop = 75),as.character(DNAchange), substr(Seq_minus_char, start = 76, stop = 151), sep = "")
-            
-            
+
           }
           else if ((substr(as.character(input$Edit),1,3) == "del")==TRUE){
             
@@ -3247,8 +2994,7 @@ shinyServer(function(input, output, session) {
             
           }
           else if(grepl(">", as.character(input$Edit)) == TRUE) { 
-            
-            
+
             y <- 0
             y <- ((nchar(as.character(input$Edit)))-1)/2
             
@@ -3283,19 +3029,14 @@ shinyServer(function(input, output, session) {
           
           
           ## Searchig for sense PAM in Prime editing 
-          
-          
-          
-          
+
           ## Upstream PAM for PRIME 
           
           primeUpstreamPAM <- substr(Seq_minus_char, 5,81)  
           
           primeUpstreamPAM2 <- substr(Seq_plus_rev_char,71,147)
-          
-          
+
           ## prime edits possible:
-          
           
           ## Sense strand
           
@@ -3320,15 +3061,11 @@ shinyServer(function(input, output, session) {
           primeeditabledf$X2 <- as.character(primeeditabledf$X2)
           
           primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-          
-          
-          
-          
+
           ## AntiSense strand
           
           primeeditable2 <- NULL;
-          
-          
+
           for(i in 1:length(primeUpstreamPAM2))
           {
             if (grepl( "GGA", primeUpstreamPAM2[i]) == TRUE || grepl( "GGC", primeUpstreamPAM2[i]) == TRUE || grepl( "GGG", primeUpstreamPAM2[i]) == TRUE || grepl( "GGT", primeUpstreamPAM2[i]) == TRUE ){
@@ -3340,24 +3077,19 @@ shinyServer(function(input, output, session) {
               
             }
           }
-          
-          
+
           primeeditable2df <- data.frame(primeeditable2)
           
           primeeditable2df$X2 <- as.character(primeeditable2df$X2)
           
           primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
-          
-          
-          
-          
+
           if(is.null(a) != TRUE && is.null(b) != TRUE){
             
             if(is.null(primeeditable) != TRUE){
             
             ## Sense strand
-            
-            
+
             for (i in 1:nrow(primeeditabledf))
               for (j in 1:(nchar(primeeditabledf[1,2])-2))
               {
@@ -3489,9 +3221,7 @@ shinyServer(function(input, output, session) {
             
             
           }
-          
-            
-            
+
           if (is.null(guides)!= TRUE)
           {
             
@@ -3533,9 +3263,7 @@ shinyServer(function(input, output, session) {
           }
           
           }
-        
-     
-        
+
         if((as.character(input$`Gene Orientation`) == "+") == TRUE || input$SequenceInput == "Sequence input")
         {
           c <- 1
@@ -3591,9 +3319,7 @@ shinyServer(function(input, output, session) {
               
             }
             else if ((substr(input$Edit2,1,3) == "del")==TRUE){
-  
-              
-              
+
               z <- nchar(substring(input$Edit2, first = 4))
               
               Seq_plus <- DNAStringSet(paste(RIGHT(input$UpstreamSequence,75), substring(input$Edit2, first = 4), substring(input$DownstreamSequence,0,76-z), sep = ""))
@@ -3643,8 +3369,7 @@ shinyServer(function(input, output, session) {
                 b <- NULL
                 
               }
-              
-              
+
             }
             else if(grepl(">", input$Edit2) == TRUE) { 
               
@@ -3665,8 +3390,7 @@ shinyServer(function(input, output, session) {
               Seq_minus_rev_char <- as.character(Seq_minus_rev)
               
               v <- 1
-              
-              
+
               DNAchange <- DNAStringSet(substr(input$Edit2,2+y,2+(y*2)))
               anti_DNAchange <- complement(DNAchange)
               
@@ -3701,8 +3425,7 @@ shinyServer(function(input, output, session) {
             
           if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)))[c(as.character(Chromosome))])) != TRUE)
           {
-              
-              
+
           Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)-as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
           
           ### Get Sequence for Minus Strand
@@ -3746,8 +3469,7 @@ shinyServer(function(input, output, session) {
             DNAchange <- DNAStringSet(substring(input$Edit, first = 4))
             
             anti_DNAchange <- complement(DNAchange)
-            
-            
+
             DNAchange_char <- paste("[",as.character(DNAchange),"]" ,sep = "")
             
             DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
@@ -3770,8 +3492,7 @@ shinyServer(function(input, output, session) {
               Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = 75), substr(Seq_plus_char, start = 76-x, stop = 151), sep = "")
               
               Seq_minus_rev_char_n <- paste(substr(Seq_minus_rev_char, start = 1, stop = 75), substr(Seq_minus_rev_char, start = 76-x, stop = 151), sep = "")
-              
-              
+
             }else{
               
               b <- NULL
@@ -3781,9 +3502,7 @@ shinyServer(function(input, output, session) {
             
           }
           else if(grepl(">", input$Edit) == TRUE) { 
-            
-            
-       
+
             y <- ((nchar(input$Edit))-1)/2
             
             v <- 1
@@ -3823,11 +3542,9 @@ shinyServer(function(input, output, session) {
           }
             
           }
-          
-          
+
           ## Searchig for sense PAM in Prime editing 
-          
-          
+
           if(is.null(s) != TRUE)
           {
           
@@ -3836,13 +3553,9 @@ shinyServer(function(input, output, session) {
           primeUpstreamPAM <- substr(Seq_plus_char, 5,81)  
           
           primeUpstreamPAM2 <- substr(Seq_minus_rev_char,71,147)
-          
-          
-          
-          
+
           ## prime edits possible:
-          
-          
+
           ## Sense strand
           
           primeeditable <- NULL;
@@ -3866,10 +3579,7 @@ shinyServer(function(input, output, session) {
           primeeditabledf$X2 <- as.character(primeeditabledf$X2)
           
           primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-          
-          
-          
-          
+
           ## AntiSense strand
           
           primeeditable2 <- NULL;
@@ -3986,9 +3696,6 @@ shinyServer(function(input, output, session) {
                         Guide[2] <- paste("g",Guide[2], sep = "") 
                         
                       }
-                      
-                     
-                      
                       Guide[7] <- 0
                       
                       if((substr(Guide[4],1,1) == "C") == TRUE){
@@ -4015,10 +3722,7 @@ shinyServer(function(input, output, session) {
                       Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
                       
                       Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+v+x+z+p-m))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT)-(as.numeric(Guide[3])+p-m-y+v)))), sep = "")
-                      
-                      
-                      
-                      
+
                       guides <- rbind(guides,Guide)
                       
                     }
@@ -4059,20 +3763,11 @@ shinyServer(function(input, output, session) {
             
           
           }
-          
-          
-          
-          
+
           }
-          else if(is.null(s) == TRUE)
-          {
-            print("wrong coordinates")
-          }
+   
         }
-          
 
-
-        
         if(is.null(a) == TRUE){
           
           output$myText <- renderText({
@@ -4149,11 +3844,6 @@ shinyServer(function(input, output, session) {
                                                  ) 
           
           
-      
-          
-          
-          
-        
           output$mytable2 <- DT::renderDataTable({ currentguidesdf2()}, caption = "Ordering Table",options = list(dom = 't'))
           
           
@@ -4161,9 +3851,7 @@ shinyServer(function(input, output, session) {
         
         
       }
-        
-      
-        
+
         output$downloadData <- downloadHandler(
           filename = function() {
             paste('pegRNA Oligos for cloning-', Sys.Date(), '.csv', sep='')
@@ -4183,7 +3871,6 @@ shinyServer(function(input, output, session) {
     ## Start of a Multi Sample Run, if this option is selected in the User Interface:
       
       if(input$Mode == 'Multi Sample Run') {
-        
 
         withProgress(message = 'Generating Oligos', value = 0, {
         
@@ -4207,25 +3894,19 @@ shinyServer(function(input, output, session) {
             }
           )
 
-          
-          
           for (k in 1:nrow(inFile))
           {
             if(input$Genomes != "Rice (MSU7)")
             {
               
               Chromosome <- as.character(paste("chr",inFile[k,]$Chromosome, sep = ""))
-                                            
-              
+
             }
             else if(input$Genomes == "Rice (MSU7)")
             {
-              
               Chromosome <- as.character(paste("Chr",inFile[k,]$Chromosome, sep = ""))
-              
             }
-            
-          
+
           ### Get sequence for Plus Strand
           
           Seq_plus <- getSeq(Target_Genome, GRanges(Chromosome,ranges = IRanges(start = c(as.numeric(inFile[k,]$GenomicLocation)-25), width = 51)),)
@@ -4235,8 +3916,7 @@ shinyServer(function(input, output, session) {
           Seq_minus <- reverseComplement(Seq_plus)
           
           Guide <- NULL
-          
-          
+
           ## Insert the Patient mutation in the Plus Strand at string position 26
           ## Code for G>A on Plus Strand and C>T on Minus Strand
           
@@ -4280,10 +3960,7 @@ shinyServer(function(input, output, session) {
           Seq_plus_char_NGC <- Seq_plus_char
           
           Seq_plus_char_NYN <- Seq_plus_char
-          
-          
-          
-          
+
           incProgress(1/nrow(inFile), detail = paste("Variant", k))
           
           
@@ -4359,11 +4036,6 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 5+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -4408,10 +4080,7 @@ shinyServer(function(input, output, session) {
                         }
                         
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -4440,17 +4109,14 @@ shinyServer(function(input, output, session) {
             if (("G" == substr(Seq_plus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_plus_char_NGG, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               # For Base editing guides on the Plus Strand:
               
               # Perfect edible window: For ABEmax (Editing Position: 6-8)
               # Substring for PAM is selected based on the Editing window:
               
               PerfectDownstreamPAM <- as.character(substr(Seq_plus_char_NGG, 39,43))  
-              
-              
+
               ## Test if there is a suitable Downstream PAM sequence
               
               plus_perfecteditable <- NULL
@@ -4458,25 +4124,21 @@ shinyServer(function(input, output, session) {
               for(i in 1:length(PerfectDownstreamPAM))
               {
                 if (grepl( "AGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "GGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "CGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "TGG", PerfectDownstreamPAM[i]) == TRUE ){    
-                  #print(c(i,PerfectDownstreamPAM[i]))
+
                   tmp <- c(i,PerfectDownstreamPAM[i])
                   plus_perfecteditable <- rbind(plus_perfecteditable,tmp)
-                  
-                  
+
                 }
               }
               
               if(is.null(plus_perfecteditable) != TRUE) {
-                
-                
+
                 plus_perfecteditabledf <- data.frame(plus_perfecteditable)
                 
                 plus_perfecteditabledf$X2 <- as.character(plus_perfecteditabledf$X2)
                 
                 plus_perfecteditabledf$X1 <- as.numeric(nrow(plus_perfecteditable))
-                
-                
-                
+
                 
                 for (i in 1:nrow(plus_perfecteditabledf))
                   for (j in 1:(nchar(plus_perfecteditabledf[1,2])-2))
@@ -4484,10 +4146,6 @@ shinyServer(function(input, output, session) {
                     {
                       if (grepl( "AGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(plus_perfecteditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE ){
                         
-                        
-                        
-                        #print(plus_perfecteditabledf[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],18+j,37+j),26-(17+j),substr(plus_perfecteditabledf[i,2], j,j+2),"ABEmax/ABE8e",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -4501,11 +4159,7 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 5+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -4551,9 +4205,7 @@ shinyServer(function(input, output, session) {
                         
                         
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -4580,9 +4232,7 @@ shinyServer(function(input, output, session) {
             if (("G" == substr(Seq_minus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_minus_char_NGA, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               ## Perfect edible: NG-ABEmax window 4-6 (PAM: NGA)
               
               PerfectUpstreamPAM_NGA <- substr(Seq_minus_char_NGA, 41,45)  
@@ -4595,7 +4245,7 @@ shinyServer(function(input, output, session) {
               for(i in 1:length(PerfectUpstreamPAM_NGA))
               {
                 if (grepl( "AGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectUpstreamPAM_NGA[i]) == TRUE ){    
-                  #print(c(i,PerfectUpstreamPAM_NGA[i]))
+                  
                   tmp <- c(i,PerfectUpstreamPAM_NGA[i])
                   minus_perfecteditable_NGA <- rbind(minus_perfecteditable_NGA,tmp)
                   
@@ -4617,9 +4267,7 @@ shinyServer(function(input, output, session) {
                   {
                     {
                       if (grepl( "AGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(minus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
-                        
-                        #print(minus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
+
                         Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char_NGA[minus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -4635,11 +4283,7 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -4650,7 +4294,6 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -4675,16 +4318,11 @@ shinyServer(function(input, output, session) {
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -4702,21 +4340,17 @@ shinyServer(function(input, output, session) {
           # For Base editing guides on the Plus Strand:
           
           else if(((inFile[k,]$SNP == "G>A") & (inFile[k,]$GeneOrientation == "+")) | ((inFile[k,]$SNP == "C>T") & (inFile[k,]$GeneOrientation == "-"))){
-            
-            
+
             if (("G" == substr(Seq_plus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_plus_char_NGA, start = 26, stop = 26) <- "A"
-              
-              
               
               ## Perfect edible: NG-ABEmax window 4-6 (PAM: NGA)
               
               PerfectDownstreamPAM_NGA <- substr(Seq_plus_char_NGA, 41,45) 
               
               ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
-              
-              
+
               plus_perfecteditable_NGA <- NULL;
               
               for(i in 1:length(PerfectDownstreamPAM_NGA))
@@ -4746,8 +4380,6 @@ shinyServer(function(input, output, session) {
                     {
                       if (grepl( "AGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(plus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
                         
-                        #print(plus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGA[plus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -4763,11 +4395,6 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -4777,11 +4404,9 @@ shinyServer(function(input, output, session) {
                         tmp3 <- data.frame(tmp3)
                         tmp4 <- data.frame(tmp3)
                         
-                        
                         nrow(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -4806,17 +4431,11 @@ shinyServer(function(input, output, session) {
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -4828,8 +4447,6 @@ shinyServer(function(input, output, session) {
               Download <- rbind(Download,"NANANA")
               next
             }
-            
-            
           }
 
           #---------------------------------------------#
@@ -4908,11 +4525,6 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -4923,8 +4535,7 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
-                        
+
                         for (b in 1:nrow(tmp3)) {
                           
                           if(as.numeric(tmp3[b,]) < as.numeric(Guide[3]))
@@ -4948,24 +4559,18 @@ shinyServer(function(input, output, session) {
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
                         
                         
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
-                        
+
                       }
                     }
                   }
                 
               }
-              
-              
+
             }
             
             # If check of wildtype sequence with inFile[k,]'-SNP' does not match, a gets assigned value of NULL
@@ -5003,7 +4608,7 @@ shinyServer(function(input, output, session) {
               for(i in 1:length(PerfectDownstreamPAM_NGCG))
               {
                 if (grepl( "AGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "GGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "CGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "TGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE ){    
-                  #print(c(i,PerfectDownstreamPAM_NGCG[i]))
+
                   tmp <- c(i,PerfectDownstreamPAM_NGCG[i])
                   plus_perfecteditable_NGCG <- rbind(plus_perfecteditable_NGCG,tmp)
                   
@@ -5019,20 +4624,13 @@ shinyServer(function(input, output, session) {
                 plus_perfecteditable_NGCGdf$X2 <- as.character(plus_perfecteditable_NGCGdf$X2)
                 
                 plus_perfecteditable_NGCGdf$X1 <- as.numeric(nrow(plus_perfecteditable_NGCG))
-                
-                
-                
-                
+
                 for (i in 1:nrow(plus_perfecteditable_NGCGdf))
                   for (j in 1:(nchar(plus_perfecteditable_NGCGdf[1,2])-3))
                   {
                     {
                       if (grepl( "AGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "GGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "CGCG", substr(plus_perfecteditable_NGCGdf[i,2],j,j+3)) == TRUE || grepl( "TGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE ){
                         
-                        
-                        
-                        #print(plus_perfecteditable_NGCGdf[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGCG[plus_perfecteditable_NGCGdf[i,1]],19+j,38+j),25-(17+j),substr(plus_perfecteditable_NGCGdf[i,2], j,j+3),"NG-ABEmax/ABE8e",inFile[k,]$Variant)
                         
                         tmp2 <- NULL
@@ -5049,22 +4647,16 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
+
                           }
                         }
-                        
-                        
+
                         tmp2df <- data.frame(tmp2)
                         tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                         tmp3 <- data.frame(tmp3)
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -5089,18 +4681,11 @@ shinyServer(function(input, output, session) {
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -5194,11 +4779,6 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 2+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -5209,7 +4789,6 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -5228,29 +4807,22 @@ shinyServer(function(input, output, session) {
                             
                           }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                           {
-                            
-                            
+
                             Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
+
                       }
                     }
                   }
                 
               }
-              
-              
+
             }
             
             # If check of wildtype sequence with inFile[k,]'-SNP' does not match, a gets assigned value of NULL
@@ -5261,8 +4833,7 @@ shinyServer(function(input, output, session) {
               Download <- rbind(Download,"NANANA")
               next
             }
-            
-            
+
           }
           
           # For Base editing guides on the Plus Strand:
@@ -5302,10 +4873,7 @@ shinyServer(function(input, output, session) {
                 plus_perfecteditable_NNGRRTdf$X2 <- as.character(plus_perfecteditable_NNGRRTdf$X2)
                 
                 plus_perfecteditable_NNGRRTdf$X1 <- as.numeric(nrow(plus_perfecteditable_NNGRRT))
-                
-                
-                
-                
+
                 for (i in 1:nrow(plus_perfecteditable_NNGRRTdf))
                   for (j in 1:(nchar(plus_perfecteditable_NNGRRTdf[1,2])-3))
                   {
@@ -5327,11 +4895,7 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 2+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -5342,7 +4906,6 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -5361,23 +4924,16 @@ shinyServer(function(input, output, session) {
                             
                           }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                           {
-                            
-                            
+
                             Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -5424,10 +4980,10 @@ shinyServer(function(input, output, session) {
               for(i in 1:length(PerfectUpstreamPAM_NNHRRT))
               {
                 if (grepl( "GAAT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "GAGT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "GGGT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "GGAT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "TAAT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "TAGT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "TGGT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "TGAT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "AAAT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "AAGT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "AGGT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE || grepl( "AGAT", PerfectUpstreamPAM_NNHRRT[i]) == TRUE ){    
+                  
                   tmp1 <- c(i,PerfectUpstreamPAM_NNHRRT[i])
                   minus_perfecteditable_NNHRRT <- rbind(minus_perfecteditable_NNHRRT,tmp1)
-                  
-                  
+
                 }
               }
               
@@ -5440,8 +4996,7 @@ shinyServer(function(input, output, session) {
                 minus_perfecteditable_NNHRRTdf$X2 <- as.character(minus_perfecteditable_NNHRRTdf$X2)
                 
                 minus_perfecteditable_NNHRRTdf$X1 <- as.numeric(nrow(minus_perfecteditable_NNHRRT))
-                
-                
+
                 # Guide sequences are designed based on the position of the PAM sequence in the 'minus_perfecteditable_NNHRRT' object:
                 
                 for (i in 1:nrow(minus_perfecteditable_NNHRRTdf))
@@ -5469,11 +5024,6 @@ shinyServer(function(input, output, session) {
                               
                               tmp <- 3+l
                               tmp2 <- rbind(tmp2,tmp)
-                              #print("yeha")
-                              
-                            }else{
-                              
-                              #print("bla")
                             }
                           }
                           
@@ -5484,7 +5034,6 @@ shinyServer(function(input, output, session) {
                           tmp4 <- data.frame(tmp3)
                           
                           t <- 0
-                          #Guide[6] <- NULL
                           
                           for (b in 1:nrow(tmp3)) {
                             
@@ -5496,24 +5045,19 @@ shinyServer(function(input, output, session) {
                               
                             }else if(as.numeric(tmp3[b,]) == as.numeric(Guide[3]))
                             {
-                              
                               Guide[2] <- paste(substr(Guide[2],1,as.numeric(as.numeric(Guide[3])+t-1)),"<strong><font color='red'>A</font></strong>",substring(Guide[2], first = as.numeric(as.numeric(Guide[3])+t+1)), sep = "")
                               tmp4 <- tmp4[] + 42
                               
                               
                             }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                             {
-                              
-                              
+
                               Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                               tmp4 <- tmp4[] + 43
                               
                             }
-                            
-                            
-                            
+
                           }
-                          
                           
                           guides <- rbind(guides,Guide)
                           
@@ -5521,16 +5065,13 @@ shinyServer(function(input, output, session) {
                           
                           guides <- guides
                         }
-                        
-                        
+
                       }
-                      
-                      
+
                     }
                     
                   }
-                
-                
+
               }
               
             }
@@ -5552,9 +5093,7 @@ shinyServer(function(input, output, session) {
             if (("G" == substr(Seq_plus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_plus_char_NNHRRT, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               # For Base editing guides on the Plus Strand:
               
               # Perfect edible window: For SaKKH-ABEmax  NNHRRT PAM (Editing Position: 4; 6-12)
@@ -5610,14 +5149,9 @@ shinyServer(function(input, output, session) {
                           {
                             if(grepl("A", substr(Guide[2],3+l,3+l)) == TRUE)
                             {
-                              
                               tmp <- 3+l
                               tmp2 <- rbind(tmp2,tmp)
-                              #print("yeha")
-                              
-                            }else{
-                              
-                              #print("bla")
+
                             }
                           }
                           
@@ -5628,8 +5162,6 @@ shinyServer(function(input, output, session) {
                           tmp4 <- data.frame(tmp3)
                           
                           t <- 0
-                          
-                          #Guide[6] <- NULL
                           
                           for (b in 1:nrow(tmp3)) {
                             
@@ -5648,27 +5180,21 @@ shinyServer(function(input, output, session) {
                               
                             }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                             {
-                              
-                              
+
                               Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                               tmp4 <- tmp4[] + 43
                               
                             }
-                            
-                            
-                            
+
                           }
-                          
-                          
+
                           guides <- rbind(guides,Guide)
                           
                          }else{
                            
                            guides <- guides
                          }
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -5695,14 +5221,11 @@ shinyServer(function(input, output, session) {
             if (("G" == substr(Seq_minus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_minus_char_NGC, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               ## Perfect edible: SpG-ABEmax window 5-6 (PAM: NGC)
               
               PerfectUpstreamPAM_NGC <- substr(Seq_minus_char_NGC, 41,44)  
-              
-              
+
               ## Target Plus Strand C>T or Minus Strand G>A
               
               minus_perfecteditable_NGC <- NULL;
@@ -5710,6 +5233,7 @@ shinyServer(function(input, output, session) {
               for(i in 1:length(PerfectUpstreamPAM_NGC))
               {
                 if (grepl( "AGC", PerfectUpstreamPAM_NGC[i]) == TRUE || grepl( "GGC", PerfectUpstreamPAM_NGC[i]) == TRUE || grepl( "CGC", PerfectUpstreamPAM_NGC[i]) == TRUE || grepl( "TGC", PerfectUpstreamPAM_NGC[i]) == TRUE ){    
+                  
                   tmp <- c(i,PerfectUpstreamPAM_NGC[i])
                   minus_perfecteditable_NGC <- rbind(minus_perfecteditable_NGC,tmp)
                   
@@ -5731,9 +5255,7 @@ shinyServer(function(input, output, session) {
                   {
                     {
                       if (grepl( "AGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(minus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
-                        
-                        #print(minus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
+
                         Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char_NGC[minus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -5749,11 +5271,7 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -5764,7 +5282,7 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
+
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -5783,21 +5301,15 @@ shinyServer(function(input, output, session) {
                             
                           }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                           {
-                            
-                            
+
                             Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
                         
                       }
                     }
@@ -5821,16 +5333,13 @@ shinyServer(function(input, output, session) {
             if (("G" == substr(Seq_plus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_plus_char_NGC, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               ## Perfect edible: SpG-ABEmax window 5-6 (PAM: NGC)
               
               PerfectDownstreamPAM_NGC <- substr(Seq_plus_char_NGA, 41,44) 
               
               ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
-              
-              
+
               plus_perfecteditable_NGC <- NULL;
               
               for(i in 1:length(PerfectDownstreamPAM_NGC))
@@ -5859,8 +5368,6 @@ shinyServer(function(input, output, session) {
                     {
                       if (grepl( "AGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(plus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
                         
-                        #print(plus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGC[plus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j), substr(plus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -5876,11 +5383,7 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -5891,7 +5394,6 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -5910,22 +5412,16 @@ shinyServer(function(input, output, session) {
                             
                           }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                           {
-                            
-                            
+
                             Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -5937,8 +5433,7 @@ shinyServer(function(input, output, session) {
               Download <- rbind(Download,"NANANA")
               next
             }
-            
-            
+
           }
           
           #---------------------------------------------#    
@@ -5952,9 +5447,7 @@ shinyServer(function(input, output, session) {
             if (("G" == substr(Seq_minus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_minus_char_NYN, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               ## Perfect edible: SpRY-ABEmax window 5-6 (PAM: NYN)
               
               PerfectUpstreamPAM_NYN <- substr(Seq_minus_char_NYN, 41,43)  
@@ -6005,22 +5498,16 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
+
                           }
                         }
-                        
-                        
+ 
                         tmp2df <- data.frame(tmp2)
                         tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                         tmp3 <- data.frame(tmp3)
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -6039,22 +5526,16 @@ shinyServer(function(input, output, session) {
                             
                           }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                           {
-                            
-                            
+
                             Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -6066,8 +5547,7 @@ shinyServer(function(input, output, session) {
                 guides <- rbind(guides,c(row.names(inFile[k,]),"NANANA","have you thought about using Prime Editing?","There is no Guide for this Variant!","",inFile[k,]$Variant))
                 Download <- rbind(Download,"NANANA")
                 next
-                
-                
+
               }
 
             }else{
@@ -6082,21 +5562,16 @@ shinyServer(function(input, output, session) {
           # For Base editing guides on the Plus Strand:
           
           else if(((inFile[k,]$SNP == "G>A") & (inFile[k,]$GeneOrientation == "+")) | ((inFile[k,]$SNP == "C>T") & (inFile[k,]$GeneOrientation == "-"))){
-            
-            
+
             if (("G" == substr(Seq_plus_char_cntrl, start = 26, stop = 26)) == TRUE )
             {
               substr(Seq_plus_char_NYN, start = 26, stop = 26) <- "A"
-              
-              
-              
+
               ## Perfect edible: SpRY-ABEmax window 5-7 (PAM: NYN)
               
               PerfectDownstreamPAM_NYN <- substr(Seq_plus_char_NYN, 41,43) 
               
-
               ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
-              
               
               plus_perfecteditable_NYN <- NULL;
               
@@ -6106,11 +5581,9 @@ shinyServer(function(input, output, session) {
                   #print(c(i,PerfectDownstreamPAM_NGA[i]))
                   tmp <- c(i,PerfectDownstreamPAM_NYN[i])
                   plus_perfecteditable_NYN <- rbind(plus_perfecteditable_NYN,tmp)
-                  
-                  
+
                 }
               }
-              
               
               if(is.null(plus_perfecteditable_NYN) != TRUE) {
                 
@@ -6119,8 +5592,7 @@ shinyServer(function(input, output, session) {
                 plus_perfecteditabledf_NYN$X2 <- as.character(plus_perfecteditabledf_NYN$X2)
                 
                 plus_perfecteditabledf_NYN$X1 <- as.numeric(nrow(plus_perfecteditable_NYN))
-                
-                
+
                 for (i in 1:nrow(plus_perfecteditabledf_NYN))
                   for (j in 1:(nchar(plus_perfecteditabledf_NYN[1,2])-2))
                   {
@@ -6142,11 +5614,6 @@ shinyServer(function(input, output, session) {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
-                            
-                          }else{
-                            
-                            #print("bla")
                           }
                         }
                         
@@ -6157,7 +5624,6 @@ shinyServer(function(input, output, session) {
                         tmp4 <- data.frame(tmp3)
                         
                         t <- 0
-                        #Guide[6] <- NULL
                         
                         for (b in 1:nrow(tmp3)) {
                           
@@ -6176,23 +5642,16 @@ shinyServer(function(input, output, session) {
                             
                           }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                           {
-                            
-                            
+
                             Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                             tmp4 <- tmp4[] + 43
                             
                           }
-                          
-                          
-                          
+ 
                         }
-                        
-                        
+
                         guides <- rbind(guides,Guide)
-                        
-                        
-                        
-                        
+
                       }
                     }
                   }
@@ -6204,32 +5663,20 @@ shinyServer(function(input, output, session) {
                 guides <- rbind(guides,c(row.names(inFile[k,]),"NANANA","have you thought about using Prime Editing?","There is no Guide for this Variant!","",inFile[k,]$Variant))
                 Download <- rbind(Download,"NANANA")
                 next
-                
-                
               }
-       
-              
+
             }else{
 
               guides <- rbind(guides,c(row.names(inFile[k,]),"NANANA", "Could not find target sequence, check substitution!","","",inFile[k,]$Variant))
               Download <- rbind(Download,"NANANA")
               next
             }
-            
-            
-          }
 
-          #---------------------------------------------#   
- 
-            
-          
-          
           }
-    
-          
-          
+          }
+    #---------------------------------------------# 
+
           currentguidesdf <- reactive({guidesdf <- data.frame("Variant" = guides[,6],"Protospacer" = guides[,2], "EditPos." = guides[,3], "PAM" = guides[,4], "Base Editor" = guides[,5] )})
-
 
           output$mytable  <- DT::renderDataTable({ currentguidesdf()
                                                   },
@@ -6242,17 +5689,9 @@ shinyServer(function(input, output, session) {
                                                     });
                                                  })'
             
-            
-            
-            
-            
           ),
           )
-     
-          
-          
-         
-          
+
           output$myText <- renderText({
 
             
@@ -6260,15 +5699,12 @@ shinyServer(function(input, output, session) {
             targetable <- data.frame("Baseeditor" = guides[,5], "Variant" = guides[,6], stringsAsFactors = FALSE)
             targetable <- subset(targetable, nchar(targetable$Baseeditor) > 3)
             targetable <- data.frame(unique(targetable$Variant))
-            
-            
+
             x <- nrow(targetable)
             y <- nrow(total)
-            
-            
+
             paste(x, "out of", y, "Variants could be targeted")
-            
-            
+
           })
           
 
@@ -6456,10 +5892,7 @@ shinyServer(function(input, output, session) {
 
         
             ## Searchig for sense PAM in Prime editing 
-            
-            
-            
-            
+
             ## Upstream PAM for PRIME 
             
             primeUpstreamPAM <- substr(Seq_minus_char, 5,81)  
@@ -6493,10 +5926,7 @@ shinyServer(function(input, output, session) {
             primeeditabledf$X2 <- as.character(primeeditabledf$X2)
             
             primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-            
-            
-            
-            
+
             ## AntiSense strand
             
             primeeditable2 <- NULL;
@@ -6520,17 +5950,11 @@ shinyServer(function(input, output, session) {
             primeeditable2df$X2 <- as.character(primeeditable2df$X2)
             
             primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
-            
-            
-            
-            
+
             if(is.null(primeeditable) != TRUE){
-              
-              
+
               ## Sense strand
-              
-              
-              
+
               for (i in 1:nrow(primeeditabledf))
                 for (j in 1:(nchar(primeeditabledf[1,2])-2))
                 {
@@ -6575,8 +5999,7 @@ shinyServer(function(input, output, session) {
                           
                         }
                         
-                        
-                        
+
                         Guide[7] <- as.numeric(Guide[7]) - as.numeric(Guide[3])
                         
                         Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 1+y+q+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+u-q))))), sep = "")
@@ -6678,11 +6101,8 @@ shinyServer(function(input, output, session) {
                       
                     }
                 }
-              
-              
+
             }
-
-
             }
             }
               else{
@@ -6819,10 +6239,7 @@ shinyServer(function(input, output, session) {
               
               
               ## Searchig for sense PAM in Prime editing 
-              
-              
-              
-              
+
               ## Upstream PAM for PRIME 
               
               primeUpstreamPAM <- substr(Seq_plus_char, 5,81)  
@@ -6855,10 +6272,7 @@ shinyServer(function(input, output, session) {
               primeeditabledf$X2 <- as.character(primeeditabledf$X2)
               
               primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-              
-              
-              
-              
+
               ## AntiSense strand
               
               primeeditable2 <- NULL;
@@ -6930,17 +6344,11 @@ shinyServer(function(input, output, session) {
                             Guide[7] <- as.numeric(Guide[7])-6
                             
                           }
-                          
-                          
-                          
-                          
+
                           Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
-                          
-                          
-                          
+
                           Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 2+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged), reverseComplement(DNAStringSet(substring(Guide[4],1,1+as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+y+x+z))))), sep = "")
 
-                          
                           guides <- rbind(guides,Guide)
                           
                           }else if(as.numeric(76-j)+u-p+y > as.numeric(inFile[k,]$RT))
@@ -6977,8 +6385,6 @@ shinyServer(function(input, output, session) {
                           {
              
                           Guide <- c(row.names(inFile[k,]),substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+73,j+92),j,as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],((j+76+x)+(as.numeric(inFile[k,]$PBS)))-(as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)),((j+76+x)+(as.numeric(inFile[k,]$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
-
-                          
                           
                           Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                           
@@ -7013,8 +6419,6 @@ shinyServer(function(input, output, session) {
                             
                           }
                           
-                          
-                          
                           Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
                           
                           Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+v+x+z+p-m))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3])+p-m+v-y)))), sep = "")
@@ -7025,20 +6429,15 @@ shinyServer(function(input, output, session) {
                             }else if((as.numeric(j)-z) < 0)
                             {
                               NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
-                              
-                              
                               next
-                              
-                              
+
                             }
                           
                           }else if(as.numeric(j)+u-p+y > inFile[k,]$RT)
                           {
                             NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
-                            
                             next
-                            
-                            
+
                           }
                         }
                         
@@ -7091,17 +6490,7 @@ shinyServer(function(input, output, session) {
             }
             
           }) 
-          
-          
-          #currentguidesdf2 <- reactive({
-          #  
-          #  guidesdf2 <- data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "TargetPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
-          #  
-          #  
-          #})
-          #
-          #output$mytable2 <- DT::renderDataTable ({ currentguidesddf2()})
-          
+
           output$mytable  <- DT::renderDataTable({ currentguidesdf()}, 
                                                  escape = FALSE,
                                                  option = list(initComplete =  JS("function(settings, json) {",
@@ -7141,21 +6530,15 @@ shinyServer(function(input, output, session) {
             
             
           })
-          
-          
+
         }
-        
-        
-            
+
       }) 
-        
-      
-        
+
       }
 
          updateButton(session, "search",disabled = TRUE)
-
-         
+          
          shinyjs::runjs("window.scrollTo({
                         top: 0,
                         right: 200,
@@ -7169,12 +6552,7 @@ shinyServer(function(input, output, session) {
            
            )
            })
-       
-      
-    
-    })
-  
 
- 
+    })
 })
   
