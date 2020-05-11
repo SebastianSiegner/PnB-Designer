@@ -1,0 +1,4 @@
+Variant;Chromosome;GenomicLocation;SNP;GeneOrientation
+Variant 1;2;58161573;G>A;-
+Variant 2;2;58226727;G>A;-
+Variant 3;3;10028690;G>A;+

@@ -1,0 +1,4 @@
+Variant;Chromosome;GenomicLocation;Edit;GeneOrientation;PBS;RTT
+HEK3_1CTTins;9;107422356;insCTT;+;13;13
+HEK3_1Tdel;9;107422356;delT;+;13;13
+HEK3_1Ains;9;107422356;insA;+;13;13
