@@ -1,4 +1,4 @@
-Variant;Chromosome;GenomicLocation;Edit;GeneOrientation;PBS;RT
+Variant;Chromosome;GenomicLocation;Edit;GeneOrientation;PBS;RTT
 *HEK3_4a_1TtoA ;9;107422356;T>A;+;13;10
 *HEK3_4a_1TtoC ;9;107422356;T>C;+;13;10
 *HEK3_4a_1TtoG ;9;107422356;T>G;+;13;10
