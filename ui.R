@@ -32,6 +32,18 @@ library(V8)
 library(shinybusy)
 library(shinydashboard)
 
+library(rsconnect)
+
+#setwd("C:/Users/wien1/Desktop/R-wd/ShinyB&PEditing0.99//")
+#options(repos = BiocManager::repositories())
+
+#rsconnect::setAccountInfo(name='cornlab',
+#                          token='CFFC0187DDBF6EBD4449F9E6AE0106E7',
+#                         secret='9hX7TZQHRCs4IuVVOqfwImGPXCdnsmffA4JTJ+nC')
+
+#rsconnect::deployApp(appName="ShinyBPEditing099")
+
+
 
 jscode <- "shinyjs.swal = function(params) { swal.apply(this, params); }"
 
@@ -100,7 +112,7 @@ shinyUI(
                                          selectInput("Gene Orientation", "Please select the orientation of your target gene:",
                                                      choices = c("+", "-")),
                                          textInput("Edit", "Please select the edit you want to install (e.g. G>A,insA, delT):", "delT"),
-                                         textInput("Mutation", "Please select the mutation you want to correct (e.g. C>T, insTT, delTCT):")
+                                         textInput("Mutation", "Please select the mutation you want to correct (e.g. C>T, insTT, delTCT):", "")
                                          )),
                                          conditionalPanel(condition = "input.Editing == 'Base editing'",
                                                           textInput("Variant2", "Please name your variant:", "NM_000517.6(HBA2):c.99G>A"),
@@ -196,8 +208,14 @@ shinyUI(
     ),
 
     ),
-  
-  
+    
+    fixedPanel(
+      right = "2%",
+      bottom = "2%",
+    sidebarLayout("Questions regarding PnB Designer?" ,tags$a(href="mailto:pngdesigner@gmail.com", target='blank', 'Contact us', link = 'pngdesigner@gmail.com'),
+              )
+    ),
+
          mainPanel(
            
            add_busy_spinner(spin = "fading-circle"),
@@ -250,4 +268,4 @@ shinyUI(
 )
 )
 )
-?req()
+
