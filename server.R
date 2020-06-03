@@ -1,29 +1,20 @@
-
-
 #### R.server script for PnB Designer
 ## DataTableOutput is produced for displaying the resulting oligos
-
-
 
 # install.packages("devtools")
 # install.packages("crayon")
 # install.packages("shiny")
 # devtools::install_github("timelyportfolio/sweetalertR")
 # install.packages("BSgenome")
-# install.packages("future")
 
 #BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
-
 #BiocManager::install("BSgenome.Mmusculus.UCSC.mm10")
-
 #BiocManager::install("BSgenome.Osativa.MSU.MSU7")
-
 #BiocManager::install("BSgenome.Drerio.UCSC.danRer11")
-
 #BiocManager::install("BSgenome.Vvinifera.URGI.IGGP12Xv2")
-
 #BiocManager::install("BSgenome.Athaliana.TAIR.TAIR9")
-
+#BiocManager::install("GenomicRanges")
+#BiocManager::install("GenomeInfoDb")
 
 library(devtools)
 library(crayon)
@@ -41,74 +32,49 @@ library("BSgenome")
 
 # Defines the possible input file size (At the moment set to 8 MB)
 
-options(shiny.maxRequestSize=8*1024^2) 
+options(shiny.maxRequestSize=0.07*1024^2) 
 
+# reactive value shared between all users
+
+#vals <- reactiveValues(count=0)
 
 # Define server logic required to produce Output Table for Oligos:
 
 shinyServer(function(input, output, session) {
-
-# Reset Button implementation in the server logic. 
-# Important parameters are set to NULL before start of another search round.
   
-  observeEvent(input$reset,{
-    
-    output$mytable <- NULL
-    output$myText <- NULL
-    output$README <- NULL
-    output$mytable2 <- NULL
-    c <- 1
-    d <- 1
-    x <- 0
-    output$mytable <- NULL
-    
-    updateTextInput(session, "Mutation", value = "")
-    ## Download Button is hidden after pressing the reset button
-    
-    updateCheckboxInput(session, "Download", value = FALSE)
-    updateButton(session, "search", disabled = FALSE)
-    shinyjs::hideElement(id = "download")
-    
-  })
-
+  
 ## ObserveEvent function to start a search round throught the genome after search button is pressed:
+
+observeEvent(input$search,{
   
-observeEvent(input$search, {
-    
+  updateButton(session, "search",disabled = TRUE)
    
     ## Target genome is chosen by the selected genome in the User Interface
-    
+  
     if((as.character(input$Genomes) == "Human (hg38)")==TRUE)
     {
       Target_Genome <- BSgenome.Hsapiens.UCSC.hg38
-      
-    }
     
+    }
     else if((as.character(input$Genomes) == "Mouse (mm10)")==TRUE)
     {
       Target_Genome <- BSgenome.Mmusculus.UCSC.mm10
-      
     }
     else if((as.character(input$Genomes) == "Zebrafish (GRCz11)")==TRUE)
     {
       Target_Genome <- BSgenome.Drerio.UCSC.danRer11
-      
     }
     else if((as.character(input$Genomes) == "Rice (MSU7)") ==TRUE)
     {
-      
       Target_Genome <- BSgenome.Osativa.MSU.MSU7
-      
     }
     else if((as.character(input$Genomes) == "Common Grape (IGGP12Xv2)")==TRUE)
     {
       Target_Genome <- BSgenome.Vvinifera.URGI.IGGP12Xv2
-      
     }
     else if((as.character(input$Genomes) == "Thale Cress (TAIR9)")==TRUE)
     {
       Target_Genome <- BSgenome.Athaliana.TAIR.TAIR9
-      
     }
 
 #-----------------------------------------------------------------------------------------------------------------#    
@@ -118,43 +84,34 @@ observeEvent(input$search, {
 
       if(input$Mode == "Single Sample Run")
       {
-
-        
     ## Correction of the different Chromosome notation in the Rice genome (Chr6 instead of chr6 in all other genomes)
-  
+          
           if(input$Genomes != "Rice (MSU7)")
           {
-            
             Chromosome <- input$Chromosome
             Chromosome2 <- input$Chromosome2
-            
-            
           }
           else if(input$Genomes == "Rice (MSU7)")
           {
-            
             Chromosome <- paste("chr",substring(input$Chromosome, first = 4),sep = "")
             Chromosome2 <- paste("chr",substring(input$Chromosome2, first = 4),sep = "")
-            
           }
         
-     
 #-----------------------------------------------------------------------------------------------------------------#
-        
+   
     # Base editing script:
     # If Base editing is selected in the Editing strategy this script will be run: 
 
       if(input$Editing == "Base editing") {
         
-        
     # DownloadButton is implemented in the UI, producing a .csv ouput file:
         
         output$downloadData <- downloadHandler(
           filename = function() {
-            paste('Base editing guides-', Sys.Date(), '.csv', sep='')
+          paste('Base editing guides-', input$Variant2, "-",Sys.Date(), '.csv', sep='')
           },
           content = function(con) {
-            write.csv(data.frame("Variant" = input$Variant, "Protospacer" = guides[,2], "EditPos." = guides[,3], "PAM" = guides[,4], "Base Editor" = guides[,5]), con, sep = ",", row.names=FALSE)
+          write.csv(data.frame("Variant" = input$Variant2, "Protospacer" = Download, "EditPos." = guides[,3], "PAM" = guides[,4], "Base Editor" = guides[,5]), con, sep = ",", row.names=FALSE)
           }
         )
         
@@ -179,34 +136,29 @@ observeEvent(input$search, {
         {
         
         Seq_plus <- getSeq(Target_Genome, GRanges(Chromosome2,ranges = IRanges(start = as.numeric(input$Location)-25, width = 51),))
-        
         Seq_minus <- reverseComplement(Seq_plus)
         
         # Convert the DnaStringSets into character strings:
         
         Seq_plus_char <- as.character(Seq_plus)
-        
         Seq_minus_char <- as.character(Seq_minus)
         
-        print(Seq_minus_char)
-        
         }
+        
         if (input$SequenceInput2 == "Sequence input")
         {
-          
+          updateSelectInput(session, "SNP", selected = character(0))
+
           RIGHT = function(x,n){
             substring(x,nchar(x)-n+1)
           }
-          
-          
-          Seq_plus <- DNAStringSet(paste(RIGHT(input$UpstreamSequence,25),substr(input$Edit3,1,1),substring(input$DownstreamSequence,0,25), sep = ""))
-          
+
+          Seq_plus <- DNAStringSet(paste(RIGHT(input$UpstreamSequence2,25),substr(input$Edit3,1,1),substring(input$DownstreamSequence2,0,25), sep = ""))
           Seq_minus <- reverseComplement(Seq_plus)
           
           # Convert the DnaStringSets into character strings:
           
           Seq_plus_char <- as.character(Seq_plus)
-          
           Seq_minus_char <- as.character(Seq_minus)
           
         }
@@ -216,46 +168,33 @@ observeEvent(input$search, {
        # '-NNGRRT' is for Sa-ABEmax; '-NNHRRT' is for SaKKH-ABEmax
         
         Seq_minus_char_NGG <- Seq_minus_char
-        
         Seq_minus_char_NGA <- Seq_minus_char
-        
         Seq_minus_char_NGCG <- Seq_minus_char
-        
         Seq_minus_char_NNGRRT <- Seq_minus_char
-        
         Seq_minus_char_NNHRRT <- Seq_minus_char
-        
         Seq_minus_char_NGC <- Seq_minus_char
-        
         Seq_minus_char_NYN <- Seq_minus_char
         
-        
         Seq_plus_char_NGG <- Seq_plus_char
-        
         Seq_plus_char_NGA <- Seq_plus_char
-        
         Seq_plus_char_NGCG <- Seq_plus_char
-        
         Seq_plus_char_NNGRRT <- Seq_plus_char
-        
         Seq_plus_char_NNHRRT <- Seq_plus_char
-        
         Seq_plus_char_NGC <- Seq_plus_char
-        
         Seq_plus_char_NYN <- Seq_plus_char
-        
         
         # Guide search For ABEmax (NGG PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
 
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C" ){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
         # Test wildtype sequence if input'-SNP' was assigned right and if so includes patient mutation into character string:
         # If not, see code line 216
           
          if (("G" == substr(Seq_minus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
          {
-            substr(Seq_minus_char_NGG, start = 26, stop = 26) <- "A"
+        
+           substr(Seq_minus_char_NGG, start = 26, stop = 26) <- "A"
           
         # patient character string is now searched for suitable PAM sequences:
 
@@ -274,11 +213,8 @@ observeEvent(input$search, {
           for(i in 1:length(PerfectUpstreamPAM))
           {
             if (grepl( "AGG", PerfectUpstreamPAM[i]) == TRUE || grepl( "GGG", PerfectUpstreamPAM[i]) == TRUE || grepl( "CGG", PerfectUpstreamPAM[i]) == TRUE || grepl( "TGG", PerfectUpstreamPAM[i]) == TRUE ){    
-              #print(c(i,PerfectUpstreamPAM[i]))
               tmp1 <- c(i,PerfectUpstreamPAM[i])
               minus_perfecteditable <- rbind(minus_perfecteditable,tmp1)
-              
-              
             }
           }
           
@@ -287,12 +223,9 @@ observeEvent(input$search, {
           if(is.null(minus_perfecteditable) != TRUE) {
             
             minus_perfecteditabledf <- data.frame(minus_perfecteditable)
-            
             minus_perfecteditabledf$X2 <- as.character(minus_perfecteditabledf$X2)
-            
             minus_perfecteditabledf$X1 <- as.numeric(nrow(minus_perfecteditable))
 
-            
             # Guide sequences are designed based on the position of the PAM sequence in the 'minus_perfecteditable' object:
             
             for (i in 1:nrow(minus_perfecteditabledf))
@@ -305,41 +238,27 @@ observeEvent(input$search, {
                     # Resulting vectors are combined to create 'guides'
                     
                     Guide <- c(minus_perfecteditabledf[i,1],substr(Seq_minus_char_NGG[minus_perfecteditabledf[i,1]],18+j,37+j),26-(17+j),substr(minus_perfecteditabledf[i,2], j,j+2),"ABEmax/ABE8e")
-                    
                     tmp2 <- NULL
-                    
                     Download <- rbind(Download,Guide[2])
                     
                     for (l in 1:(nchar(minus_perfecteditabledf[1,2])-2))
-                      
                     {
                       if(grepl("A", substr(Guide[2],5+l,5+l)) == TRUE)
                       {
-                        
                         tmp <- 5+l
                         tmp2 <- rbind(tmp2,tmp)
-                        print("yeha")
                         
-                      }else{
-                        
-                        print("bla")
-                      }
+                      }else{}
                     }
-                    
                     
                     tmp2df <- data.frame(tmp2)
                     tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                     tmp3 <- data.frame(tmp3)
                     tmp4 <- data.frame(tmp3)
-                    
-                    
                     nrow(tmp3)
-                    
                     t <- 0
-                    #Guide[6] <- NULL
                     
                     for (b in 1:nrow(tmp3)) {
-                      
                       if(as.numeric(tmp3[b,]) < as.numeric(Guide[3]))
                       {
                         Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
@@ -348,34 +267,23 @@ observeEvent(input$search, {
                         
                       }else if(as.numeric(tmp3[b,]) == as.numeric(Guide[3]))
                       {
-                        
                         Guide[2] <- paste(substr(Guide[2],1,as.numeric(as.numeric(Guide[3])+t-1)),"<strong><font color='red'>A</font></strong>",substring(Guide[2], first = as.numeric(as.numeric(Guide[3])+t+1)), sep = "")
                         tmp4 <- tmp4[] + 42
                         
-                        
                       }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                       {
-                        
-                        
                         Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                         tmp4 <- tmp4[] + 43
-                        
                       }
-                      
-                      
-                      
                     }
                     
                     guides <- rbind(guides,Guide)
-                    
-                    
-                    
+
                   }
                 }
               }
             
           }
-          
           
          }
         
@@ -386,20 +294,17 @@ observeEvent(input$search, {
            a <- NULL
            
          }
-          
-          
         }
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
-            substr(Seq_plus_char_NGG, start = 26, stop = 26) <- "A"
-            
           
-          
+          substr(Seq_plus_char_NGG, start = 26, stop = 26) <- "A"
+
           # For Base editing guides on the Plus Strand:
             
           # Perfect edible window: For ABEmax (Editing Position: 6-8)
@@ -407,7 +312,6 @@ observeEvent(input$search, {
           
           PerfectDownstreamPAM <- as.character(substr(Seq_plus_char_NGG, 39,43))  
 
-          
           ## Test if there is a suitable Downstream PAM sequence
           
           plus_perfecteditable <- NULL
@@ -415,71 +319,46 @@ observeEvent(input$search, {
           for(i in 1:length(PerfectDownstreamPAM))
           {
             if (grepl( "AGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "GGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "CGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "TGG", PerfectDownstreamPAM[i]) == TRUE ){    
-              #print(c(i,PerfectDownstreamPAM[i]))
+              
               tmp <- c(i,PerfectDownstreamPAM[i])
               plus_perfecteditable <- rbind(plus_perfecteditable,tmp)
-              
-              
             }
           }
           
           if(is.null(plus_perfecteditable) != TRUE) {
-            
-            
+
             plus_perfecteditabledf <- data.frame(plus_perfecteditable)
-            
             plus_perfecteditabledf$X2 <- as.character(plus_perfecteditabledf$X2)
-            
             plus_perfecteditabledf$X1 <- as.numeric(nrow(plus_perfecteditable))
-            
-            
-            
-            
+
             for (i in 1:nrow(plus_perfecteditabledf))
               for (j in 1:(nchar(plus_perfecteditabledf[1,2])-2))
               {
                 {
                   if (grepl( "AGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(plus_perfecteditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE ){
-                    
-                    #print(plus_perfecteditabledf[i,2])
-                    #print(FANCA_char[perfect_editable_sense[i,1]])
-                    
+    
                     Guide <- c(plus_perfecteditabledf[i,1],substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],18+j,37+j),26-(17+j),substr(plus_perfecteditabledf[i,2], j,j+2),"ABEmax/ABE8e")
-                  
                     tmp2 <- NULL
-                    
                     Download <- rbind(Download,Guide[2])
                     
                     for (l in 1:(nchar(plus_perfecteditabledf[1,2])-2))
-                      
                     {
                       if(grepl("A", substr(Guide[2],5+l,5+l)) == TRUE)
                       {
-                        
                         tmp <- 5+l
                         tmp2 <- rbind(tmp2,tmp)
-                        print("yeha")
                         
-                      }else{
-                        
-                        print("bla")
-                      }
+                      }else{}
                     }
-      
                     
                     tmp2df <- data.frame(tmp2)
                     tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                     tmp3 <- data.frame(tmp3)
                     tmp4 <- data.frame(tmp3)
-                    
-                    
                     nrow(tmp3)
-                    
                     t <- 0
-                    #Guide[6] <- NULL
                     
                     for (b in 1:nrow(tmp3)) {
-                      
                       if(as.numeric(tmp3[b,]) < as.numeric(Guide[3]))
                       {
                         Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
@@ -488,61 +367,45 @@ observeEvent(input$search, {
                         
                       }else if(as.numeric(tmp3[b,]) == as.numeric(Guide[3]))
                       {
-                        
                         Guide[2] <- paste(substr(Guide[2],1,as.numeric(as.numeric(Guide[3])+t-1)),"<strong><font color='red'>A</font></strong>",substring(Guide[2], first = as.numeric(as.numeric(Guide[3])+t+1)), sep = "")
                         tmp4 <- tmp4[] + 42
                         
-                        
                       }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                       {
-                        
-                        
                         Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                         tmp4 <- tmp4[] + 43
-                        
                       }
-                      
-                      
-                      
+
                     }
-                    
-                    
+
                     guides <- rbind(guides,Guide)
-                    
-                    
-                    
                   }
                 }
               }
-            
-            
+
           }
           }else{
             
             a <- NULL
             
           }
-          
         }
-        
 #---------------------------------------------#        
         
         # Guide search For NG-ABEmax, VRQR-ABEmax (NGA PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C" ){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
           
           if (input$SequenceInput2 == "Genomic coordinates" && ("G" == substr(Seq_minus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
-            substr(Seq_minus_char_NGA, start = 26, stop = 26) <- "A"
-            
           
-          
+          substr(Seq_minus_char_NGA, start = 26, stop = 26) <- "A"
+
           ## Perfect edible: NG-ABEmax window 4-6 (PAM: NGA)
           
           PerfectUpstreamPAM_NGA <- substr(Seq_minus_char_NGA, 41,45)  
-          
 
           ## Target Plus Strand C>T or Minus Strand G>A
           
@@ -551,36 +414,26 @@ observeEvent(input$search, {
           for(i in 1:length(PerfectUpstreamPAM_NGA))
           {
             if (grepl( "AGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectUpstreamPAM_NGA[i]) == TRUE ){    
-              #print(c(i,PerfectUpstreamPAM_NGA[i]))
+
               tmp <- c(i,PerfectUpstreamPAM_NGA[i])
               minus_perfecteditable_NGA <- rbind(minus_perfecteditable_NGA,tmp)
-              
-              
             }
           }
           
           if(is.null(minus_perfecteditable_NGA) != TRUE) {
             
             minus_perfecteditabledf_NGA <- data.frame(minus_perfecteditable_NGA)
-            
             minus_perfecteditabledf_NGA$X2 <- as.character(minus_perfecteditabledf_NGA$X2)
-            
             minus_perfecteditabledf_NGA$X1 <- as.numeric(nrow(minus_perfecteditable_NGA))
-            
             
             for (i in 1:nrow(minus_perfecteditabledf_NGA))
               for (j in 1:(nchar(minus_perfecteditabledf_NGA[1,2])-2))
               {
                 {
                   if (grepl( "AGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(minus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
-                    
-                    #print(minus_perfecteditabledf_NGA[i,2])
-                    #print(FANCA_char[perfect_editable_sense[i,1]])
+
                     Guide <- c(minus_perfecteditabledf_NGA[i,1],substr(Seq_minus_char_NGA[minus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax")
-                    
-                    
                     tmp2 <- NULL
-                    
                     Download <- rbind(Download,Guide[2])
                     
                     for (l in 1:(nchar(minus_perfecteditabledf_NGA[1,2])-2))
@@ -590,25 +443,17 @@ observeEvent(input$search, {
                     {
                       if(grepl("A", substr(Guide[2],3+l,3+l)) == TRUE)
                       {
-                        
                         tmp <- 3+l
                         tmp2 <- rbind(tmp2,tmp)
-                        #print("yeha")
                         
-                      }else{
-                        
-                        #print("bla")
-                      }
+                      }else{}
                     }
-                    
                     
                     tmp2df <- data.frame(tmp2)
                     tmp3 <- tmp2df[order(tmp2df$tmp2,decreasing =  FALSE),]
                     tmp3 <- data.frame(tmp3)
                     tmp4 <- data.frame(tmp3)
-                    
                     t <- 0
-                    #Guide[6] <- NULL
                     
                     for (b in 1:nrow(tmp3)) {
                       
@@ -620,30 +465,20 @@ observeEvent(input$search, {
                         
                       }else if(as.numeric(tmp3[b,]) == as.numeric(Guide[3]))
                       {
-                        
                         Guide[2] <- paste(substr(Guide[2],1,as.numeric(as.numeric(Guide[3])+t-1)),"<strong><font color='red'>A</font></strong>",substring(Guide[2], first = as.numeric(as.numeric(Guide[3])+t+1)), sep = "")
                         tmp4 <- tmp4[] + 42
                         
                         
                       }else if (as.numeric(tmp3[b,]) > as.numeric(Guide[3]))
                       {
-                        
-                        
                         Guide[2] <- paste(substr(Guide[2],1,tmp4[b,]-1),"<strong><font color='blue'>A</font></strong>",substring(Guide[2], first = tmp4[b,]+1),sep = "")
                         tmp4 <- tmp4[] + 43
-                        
                       }
-                      
-                      
-                      
+
                     }
                     
-                    
                     guides <- rbind(guides,Guide)
-                    
-                    
-                    
-                    
+
                   }
                 }
               }
@@ -659,28 +494,26 @@ observeEvent(input$search, {
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
-            substr(Seq_plus_char_NGA, start = 26, stop = 26) <- "A"
             
-          
-          
+          substr(Seq_plus_char_NGA, start = 26, stop = 26) <- "A"
+
           ## Perfect edible: NG-ABEmax window 4-6 (PAM: NGA)
           
           PerfectDownstreamPAM_NGA <- substr(Seq_plus_char_NGA, 41,45) 
 
           ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
           
-          
           plus_perfecteditable_NGA <- NULL;
           
           for(i in 1:length(PerfectDownstreamPAM_NGA))
           {
             if (grepl( "AGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectDownstreamPAM_NGA[i]) == TRUE ){    
-              #print(c(i,PerfectDownstreamPAM_NGA[i]))
+
               tmp <- c(i,PerfectDownstreamPAM_NGA[i])
               plus_perfecteditable_NGA <- rbind(plus_perfecteditable_NGA,tmp)
               
@@ -704,8 +537,6 @@ observeEvent(input$search, {
                 {
                   if (grepl( "AGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(plus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
                     
-                    #print(plus_perfecteditabledf_NGA[i,2])
-                    #print(FANCA_char[perfect_editable_sense[i,1]])
                     Guide <- c(plus_perfecteditabledf_NGA[i,1],substr(Seq_plus_char_NGA[plus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax")
                     tmp2 <- NULL
                     
@@ -721,11 +552,9 @@ observeEvent(input$search, {
                         
                         tmp <- 3+l
                         tmp2 <- rbind(tmp2,tmp)
-                        print("yeha")
                         
                       }else{
-                        
-                        print("bla")
+
                       }
                     }
                     
@@ -794,7 +623,7 @@ observeEvent(input$search, {
         # Guide search For NG-ABEmax (NGCG PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
           # Test wildtype sequence if input'-SNP' was assigned right and if so includes patient mutation into character string:
           # If not, see code line 216
@@ -864,11 +693,9 @@ observeEvent(input$search, {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -937,7 +764,7 @@ observeEvent(input$search, {
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
@@ -957,7 +784,7 @@ observeEvent(input$search, {
             for(i in 1:length(PerfectDownstreamPAM_NGCG))
             {
               if (grepl( "AGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "GGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "CGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "TGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE ){    
-                #print(c(i,PerfectDownstreamPAM_NGCG[i]))
+
                 tmp <- c(i,PerfectDownstreamPAM_NGCG[i])
                 plus_perfecteditable_NGCG <- rbind(plus_perfecteditable_NGCG,tmp)
                 
@@ -983,10 +810,6 @@ observeEvent(input$search, {
                   {
                     if (grepl( "AGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "GGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "CGCG", substr(plus_perfecteditable_NGCGdf[i,2],j,j+3)) == TRUE || grepl( "TGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE ){
                       
-                      
-                      
-                      #print(plus_perfecteditable_NGCGdf[i,2])
-                      #print(FANCA_char[perfect_editable_sense[i,1]])
                       Guide <- c(plus_perfecteditable_NGCGdf[i,1],substr(Seq_plus_char_NGCG[plus_perfecteditable_NGCGdf[i,1]],19+j,38+j),25-(17+j),substr(plus_perfecteditable_NGCGdf[i,2], j,j+3),"NG-ABEmax/ABE8e")
                       tmp2 <- NULL
                       
@@ -1002,11 +825,9 @@ observeEvent(input$search, {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -1071,7 +892,7 @@ observeEvent(input$search, {
         # Guide search For Sa-ABEmax (NNGRRT PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
           # Test wildtype sequence if input'-SNP' was assigned right and if so includes patient mutation into character string:
           # If not, see code line 216
@@ -1087,8 +908,6 @@ observeEvent(input$search, {
             
             PerfectUpstreamPAM_NNGRRT <- as.character(substr(Seq_minus_char_NNGRRT, 36,49))  
             
-            print(PerfectUpstreamPAM_NNGRRT)
-            
             
             # 'minus_perfecteditable_NNGRRT' object is created to store found PAM candidates:
             
@@ -1100,7 +919,7 @@ observeEvent(input$search, {
             for(i in 1:length(PerfectUpstreamPAM_NNGRRT))
             {
               if (grepl( "GAAT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GAGT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GGGT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GGAT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE ){    
-                #print(c(i,PerfectUpstreamPAM_NNGRRT[i]))
+
                 tmp1 <- c(i,PerfectUpstreamPAM_NNGRRT[i])
                 minus_perfecteditable_NNGRRT <- rbind(minus_perfecteditable_NNGRRT,tmp1)
                 
@@ -1145,11 +964,9 @@ observeEvent(input$search, {
                           
                           tmp <- 2+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -1217,7 +1034,7 @@ observeEvent(input$search, {
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
           {
@@ -1277,11 +1094,9 @@ observeEvent(input$search, {
                           
                           tmp <- 2+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -1346,7 +1161,7 @@ observeEvent(input$search, {
         # Guide search For SaKKH-ABEmax (NNHRRT PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
           # Test wildtype sequence if input'-SNP' was assigned right and if so includes patient mutation into character string:
           # If not, see code line 216
@@ -1418,11 +1233,9 @@ observeEvent(input$search, {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -1495,7 +1308,7 @@ observeEvent(input$search, {
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input" )
           {
@@ -1517,7 +1330,7 @@ observeEvent(input$search, {
             for(i in 1:length(PerfectDownstreamPAM_NNHRRT))
             {
               if (grepl( "GAAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "GAGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "GGGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "GGAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TAAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TAGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TGGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TGAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AAAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AAGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AGGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AGAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE ){    
-                #print(c(i,PerfectDownstreamPAM_NNHRRT[i]))
+
                 tmp <- c(i,PerfectDownstreamPAM_NNHRRT[i])
                 plus_perfecteditable_NNHRRT <- rbind(plus_perfecteditable_NNHRRT,tmp)
                 
@@ -1560,11 +1373,9 @@ observeEvent(input$search, {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -1628,14 +1439,13 @@ observeEvent(input$search, {
           }
           
         }
-        
  
 #---------------------------------------------#    
 
         # Guide search For SpG-ABEmax (NGC PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
           
           if (("G" == substr(Seq_minus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input" )
@@ -1678,8 +1488,6 @@ observeEvent(input$search, {
                   {
                     if (grepl( "AGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(minus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
                       
-                      #print(minus_perfecteditabledf_NGA[i,2])
-                      #print(FANCA_char[perfect_editable_sense[i,1]])
                       Guide <- c(minus_perfecteditabledf_NGC[i,1],substr(Seq_minus_char_NGC[minus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax")
                       tmp2 <- NULL
                       
@@ -1695,11 +1503,9 @@ observeEvent(input$search, {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -1761,7 +1567,7 @@ observeEvent(input$search, {
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
@@ -1805,8 +1611,6 @@ observeEvent(input$search, {
                   {
                     if (grepl( "AGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(plus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
                       
-                      #print(plus_perfecteditabledf_NGA[i,2])
-                      #print(FANCA_char[perfect_editable_sense[i,1]])
                       Guide <- c(plus_perfecteditabledf_NGC[i,1],substr(Seq_plus_char_NGC[plus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax")
                       tmp2 <- NULL
                       
@@ -1822,11 +1626,9 @@ observeEvent(input$search, {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
                           
-                          #print("bla")
                         }
                       }
                       
@@ -1891,7 +1693,7 @@ observeEvent(input$search, {
         # Guide search For SpRY-ABEmax  (NYN PAM) depending on input'-SNP' and '-Gene Orientation':
         # For Base editing guides on the Minus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "T>C"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "-" || input$SNP == "C>T" && input$`Gene Orientation2` == "+" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "T>C")){
           
           
           if (("G" == substr(Seq_minus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input" )
@@ -1904,7 +1706,6 @@ observeEvent(input$search, {
             
             PerfectUpstreamPAM_NYN <- substr(Seq_minus_char_NYN, 42,44)  
             
-            print(PerfectUpstreamPAM_NYN)
             
             
             ## Target Plus Strand C>T or Minus Strand G>A
@@ -1914,7 +1715,7 @@ observeEvent(input$search, {
             for(i in 1:length(PerfectUpstreamPAM_NYN))
             {
               if (grepl( "C", PerfectUpstreamPAM_NYN[i]) == TRUE || grepl( "T", PerfectUpstreamPAM_NYN[i]) == TRUE || grepl( "A", PerfectUpstreamPAM_NYN[i]) == TRUE){    
-                #print(c(i,PerfectUpstreamPAM_NGA[i]))
+
                 tmp <- c(i,PerfectUpstreamPAM_NYN[i])
                 minus_perfecteditable_NYN <- rbind(minus_perfecteditable_NYN,tmp)
                 
@@ -1953,11 +1754,9 @@ observeEvent(input$search, {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -2018,7 +1817,7 @@ observeEvent(input$search, {
         
         # For Base editing guides on the Plus Strand:
         
-        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || input$SequenceInput2 == "Sequence input" && input$Edit3 == "A>G"){
+        if(input$SNP == "G>A" && input$`Gene Orientation2` == "+" || input$SNP == "C>T" && input$`Gene Orientation2` == "-" || (input$SequenceInput2 == "Sequence input") && (input$Edit3 == "A>G")){
           
           
           if (("G" == substr(Seq_plus_char, start = 26, stop = 26)) == TRUE || input$SequenceInput2 == "Sequence input")
@@ -2031,8 +1830,6 @@ observeEvent(input$search, {
             
             PerfectDownstreamPAM_NYN <- substr(Seq_plus_char_NYN, 42,44) 
             
-            print(PerfectDownstreamPAM_NYN)
-            
             ## Target Plus Strand G>A or Minus Strand C>T (with NG-ABEmax)
             
             
@@ -2041,7 +1838,7 @@ observeEvent(input$search, {
             for(i in 1:length(PerfectDownstreamPAM_NYN))
             {
               if (grepl( "C", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "T", PerfectDownstreamPAM_NGA[i]) == TRUE|| grepl( "A", PerfectDownstreamPAM_NGA[i]) == TRUE){    
-                #print(c(i,PerfectDownstreamPAM_NGA[i]))
+
                 tmp <- c(i,PerfectDownstreamPAM_NYN[i])
                 plus_perfecteditable_NYN <- rbind(plus_perfecteditable_NYN,tmp)
                 
@@ -2080,11 +1877,9 @@ observeEvent(input$search, {
                           
                           tmp <- 4+l
                           tmp2 <- rbind(tmp2,tmp)
-                          #print("yeha")
                           
                         }else{
-                          
-                          #print("bla")
+
                         }
                       }
                       
@@ -2220,6 +2015,15 @@ observeEvent(input$search, {
       # If Prime editing is selected in the Editing strategy this script will be run: 
         
       else if (input$Editing == "Prime editing") {
+   
+      # Set Edit and Mutation back to 0, if sequence input in text format is selected  
+        
+        if(input$SequenceInput == "Sequence input")
+        {
+          updateTextInput(session, "Mutation", value = "")
+          updateTextInput(session, "Edit", value = "")
+          
+        }
       
       # Variables for later target definition and quality control are defined: 
   
@@ -2235,21 +2039,19 @@ observeEvent(input$search, {
         v <- 0
         s <- 1
         q <- 0
+        r <- 0
         
       # Create 'guides', which the later created pegRNAs will be stored to:
         
         guides <- NULL
-        
     
 #-------------------------------------# 
     
-      
-        
       # Correcting a patient mutation using Prime Editing:
         
         # Check if there is an input in the 'Mutation' input window, but not in the 'Edit' input window:
         
-        if((nchar(input$Mutation) > 2) & (nchar(input$Edit) < 2))
+        if((nchar(input$Mutation) > 2) && (nchar(input$Edit) < 2) && input$SequenceInput == "Genomic coordinates")
         {
           
           # Variables for later target definition and quality control are defined: 
@@ -2259,18 +2061,44 @@ observeEvent(input$search, {
           
           if((as.character(input$`Gene Orientation`) == "-") == TRUE) 
           {
-            
-            
+
             if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)))[c(as.character(Chromosome))])) != TRUE)
             {
-              
+ 
             # Get sequence for Plus Strand using the Bioconductor package
             # Get Sequence for Minus Strand by using reverseComplement function (bioconductor)
+            
+              
+            # shift sequence by number of deleted bases so also the start coordinate can be used for (-) Strand
+              
+            if ((substr(as.character(input$Mutation),1,3) == "del")==TRUE){
+              
+            # Possibility to put in deletion only if sequence should not be checked
+              
+            if(is.na(as.numeric(substring(input$Mutation,first = 5, last = nchar(input$Mutation)-1))) != TRUE)
+            {
 
-            Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
-            
+                m <- as.numeric(substring(input$Mutation,first = 5, last = nchar(input$Mutation)-1))-1
+                
+                
+              }
+            else{
+                
+                m <- nchar(substring(as.character(input$Mutation), first = 4))-1
+
+              }
+              
+              Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = (as.numeric(input$Position)+m)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
+              
+            }
+            else{
+              
+              Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(input$Position)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
+              
+            }
+
             Seq_minus <- reverseComplement(Seq_plus)
-            
+
             # Get reverse Sequences of both Strands using reverse function (bioconductor)
             
             Seq_plus_rev <- reverse(Seq_plus)
@@ -2330,7 +2158,41 @@ observeEvent(input$search, {
 
             else if ((substr(as.character(input$Mutation),1,3) == "del")==TRUE){
               
+              # if deletion is already confirmed by the user
+              
+              if(is.na(as.numeric(substring(input$Mutation,first = 5, last = nchar(input$Mutation)-1))) != TRUE)
+              {
+
+                z <- as.numeric(substring(input$Mutation,first = 5, last = nchar(input$Mutation)-1))
+                
+                DNAchange <- DNAStringSet(substr(Seq_minus, start = 76, stop = 75+z))
+                
+                anti_DNAchange <- complement(DNAchange)
+                
+                DNAchange_char <- as.character(DNAchange)
+                
+                DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+                
+                anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
+                
+                anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+                
+                z <-  nchar(as.character(DNAchange))
+                
+                x <- nchar(as.character(DNAchange))
+                
+                x <- as.numeric(x)* (-1)  
+                
+                r <- 1
+
+              }
+              
+              # if deletion should be checked while running
+              
+              else{
+              
               DNAchange <- DNAStringSet(substring(as.character(input$Mutation), first = 4))
+              
               anti_DNAchange <- complement(DNAchange)
               
               DNAchange_char <- as.character(DNAchange)
@@ -2347,12 +2209,15 @@ observeEvent(input$search, {
               
               x <- as.numeric(x)* (-1)  
               
-              m <- z-1
+              r <- 1
+              
+              
+              }
               
               # Input control check, if sequence in the 'Mutation' input is the same as wildtype sequence at the same string position:
               # If not successful, 'b' is assigned the value NULL
 
-              if(((substr(Seq_minus, start = 76, stop = 75+z)) == (as.character(substring(as.character(input$Mutation), first = 4))))==TRUE){
+              if(((substr(Seq_minus, start = 76, stop = 75+z)) == DNAchange_char) ==TRUE){
                 
                 Seq_plus_rev_char_n <- paste(substr(Seq_plus_rev_char, start = 1, stop = 75), substr(Seq_plus_rev_char, start = 76-x, stop = 151), sep = "")
                 Seq_minus_char_n <- paste(substr(Seq_minus_char, start = 1, stop = 75), substr(Seq_minus, start = 76-x, stop = 151), sep = "")
@@ -2421,14 +2286,12 @@ observeEvent(input$search, {
             # Antisense Strand:
             
             primeUpstreamPAM2 <- substr(Seq_plus_rev_char_n,71,147)
-
             
             ## Search for PAMs in the Sense Strand:
             
             # 'primeeditable' object is created to store found PAM candidates:
 
             primeeditable <- NULL;
-            
             
             # The PrimeUpstreamPAM substring is searched for all different PAM sequences
             # Matches are stored in the 'primeeditable' object
@@ -2448,9 +2311,7 @@ observeEvent(input$search, {
             
             
             primeeditabledf <- data.frame(primeeditable)
-            
             primeeditabledf$X2 <- as.character(primeeditabledf$X2)
-            
             primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
             
             
@@ -2475,11 +2336,8 @@ observeEvent(input$search, {
               }
             }
             
-            
             primeeditable2df <- data.frame(primeeditable2)
-            
             primeeditable2df$X2 <- as.character(primeeditable2df$X2)
-            
             primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
             
             
@@ -2489,6 +2347,8 @@ observeEvent(input$search, {
             
             if(is.null(a) != TRUE & is.null(b) != TRUE){
               
+              if(is.null(primeeditable) != TRUE){
+                
             # Guide sequences are designed based on the position of the PAM sequence in the 'primeeditable' object:
 
               for (i in 1:nrow(primeeditabledf))
@@ -2498,9 +2358,6 @@ observeEvent(input$search, {
                     if (grepl( "AGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(primeeditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE ){
                       
                       # Check if Editing Position is included in the RT template:
-                      
-                      if((((76-j)+abs(x)) > as.numeric(input$RT)) != TRUE)
-                      {
                         
                       # Check if Protospacer length is still 20 nt:
 
@@ -2508,16 +2365,14 @@ observeEvent(input$search, {
                       {
                         
                         Guide <- c("1",substr(Seq_minus_char_n[primeeditabledf[i,1]],j-16,j+3),76-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char[primeeditabledf[i,1]],(j+1) - as.numeric(input$PBS),((j+1) - (as.numeric(input$PBS)))+ (as.numeric(input$RT)+as.numeric(input$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Sense")
-                        
-                        
-                        
+
                         # Modify Protospacer to enhance transcription: (Add 3'-G to Protospacer if there is no G)
                         
                         if(substr(Seq_minus_char_n[primeeditabledf[i,1]],j-16,j-16) != "G")
                         {
                           
                           Guide[2] <- paste("g",Guide[2], sep = "") 
-                          
+                     
                         }
                         
                         Guide[7] <- 0
@@ -2545,20 +2400,21 @@ observeEvent(input$search, {
 
                         Guide[8] <- paste(as.character(reverseComplement(DNAStringSet(substring(Guide[4], first = ((as.numeric(input$RT))-(as.numeric(Guide[3])-2+p)))))),as.character(DNAchange_char_tagged), as.character(reverseComplement(DNAStringSet(substring(Guide[4],1,(-1)+as.numeric(input$RT)-((as.numeric(Guide[3])-1+m+n)))))), sep = "")
                         
-                        
                         Guide[7] <- as.numeric(Guide[7]) - as.numeric(Guide[3])
                         
                         guides <- rbind(guides,Guide)
                         
                       
                         }
-                        }
+                        
                       
                     }
                   }
                 }
+              }
               
-              if(is.null(a) != TRUE & is.null(b) != TRUE){
+              
+              if(is.null(primeeditable2) != TRUE){
                 
                 ## AntiSense strand
                 
@@ -2568,22 +2424,21 @@ observeEvent(input$search, {
                     {
                       if (grepl( "GGA", substr(primeeditable2df[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(primeeditable2df[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(primeeditable2df[i,2],j,j+2)) == TRUE || grepl( "GGT", substr(primeeditable2df[i,2], j,j+2)) == TRUE ){
                         
-                        if(((j+abs(x)) > as.numeric(input$RT)) != TRUE)
-                        {
+                        
                           if(nchar(substr(Seq_plus_rev_char_n[primeeditabledf[i,1]],j+73,j+92)) == 20)
                           {
                           
-                          Guide <- c("1",substr(Seq_plus_rev_char_n[primeeditable2df[i,1]],j+73,j+92),j-u, as.character(reverse(DNAStringSet(substr(Seq_minus_char[primeeditable2df[i,1]],((j+76-x)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+76-x)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
-
+                          Guide <- c("1",substr(Seq_plus_rev_char_n[primeeditable2df[i,1]],j+73,j+92),j-u+r-n, as.character(reverse(DNAStringSet(substr(Seq_minus_char[primeeditable2df[i,1]],((j+76-x)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+76-x)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
+                          
+                          Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
+                          
                           
                           if(substr(Seq_plus_rev_char_n[primeeditable2df[i,1]],j+92,j+92) != "G")
                           {
                             
-                            Guide[2] <- paste(Guide[2],"g", sep = "") 
+                            Guide[2] <- paste("g" ,Guide[2],sep = "") 
                             
                           }
-                          
-                          Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                           
                           Guide[4] <- as.character(reverse(DNAStringSet(Guide[4])))
                           
@@ -2607,22 +2462,20 @@ observeEvent(input$search, {
                             
                           }
                           
-                          Guide[8] <- paste(substring(Guide[4],1,as.numeric(input$RT)-((as.numeric(Guide[3])+z-p))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 1+((as.numeric(input$RT))-(as.numeric(Guide[3])-y-p))), sep = "")
+                          Guide[8] <- paste(substring(Guide[4],1,as.numeric(input$RT)-((as.numeric(Guide[3])+z-p-r+n))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 1+((as.numeric(input$RT))-(as.numeric(Guide[3])-y-p-r+n))), sep = "")
                           
                           Guide[7] <- as.numeric(Guide[7]) - as.numeric(Guide[3])
                           
                           guides <- rbind(guides,Guide)
                           
                           }
-                        }
+                        
                       }
                       
                     }
                   }
-                
-                
+
               }
-              
               
               
               if (is.null(guides)!= TRUE)
@@ -2639,9 +2492,9 @@ observeEvent(input$search, {
                 }
                 
                 
-                if(any(((as.numeric(guides[,3])+u-z) <= input$RT) || (as.numeric(guides[,3])+u-z >= 0)))
+                if(any((as.numeric(guides[,3])+p+z+n) <= input$RT))
                 {
-                  guides <- subset(guides, as.numeric(guides[,3])+u-z <= input$RT)
+                  guides <- subset(guides, as.numeric(guides[,3])+p+z+n <= input$RT)
                   
                 }else{
                   
@@ -2650,15 +2503,23 @@ observeEvent(input$search, {
                   
                 }
                 
-                if(is.null(c) || is.null(d) != TRUE)
+                if(any((as.numeric(guides[,3])-u-z-n) >= 0))
+                {
+                  guides <- subset(guides, as.numeric(guides[,3])-u-z-n >= 0)
+                  
+                }else{
+                  
+                  d <- NULL
+                  c <- NULL
+                  
+                }
+                
+                if(is.null(c) | is.null(d) != TRUE)
                 {
                   
-                  
-                  
                   currentguidesdf <- reactive({ 
-                    
-                    
-                    guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding_strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
+
+                    guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding.strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
                     guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
                     
                   })
@@ -2741,28 +2602,56 @@ observeEvent(input$search, {
             }
             else if ((substr(input$Mutation,1,3) == "del")==TRUE){
               
-              DNAchange <- DNAStringSet(substring(input$Mutation, first = 4))
-              anti_DNAchange <- complement(DNAchange)
-           
-              DNAchange_char <- as.character(DNAchange)
+              # if deletion is already confirmed by the user
               
-              DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              if(is.na(as.numeric(substring(input$Mutation,first = 5, last = nchar(input$Mutation)-1))) != TRUE)
+              {
+                
+                z <- as.numeric(substring(input$Mutation,first = 5, last = nchar(input$Mutation)-1))
+                
+                DNAchange <- DNAStringSet((substr(Seq_plus, start = 76, stop = 75+z)))
+                
+                anti_DNAchange <- complement(DNAchange)
+                
+                DNAchange_char <- as.character(DNAchange)
+                
+                DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+                
+                anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
+                
+                anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+                
+                x <- nchar(as.character(DNAchange))
+                
+                x <- as.numeric(x)* (-1)  
+                
+              }
               
-              anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
+              # if deletion should be checked while running
               
-              anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              else{
+                
+                DNAchange <- DNAStringSet(substring(input$Mutation, first = 4))
+                anti_DNAchange <- complement(DNAchange)
+                
+                DNAchange_char <- as.character(DNAchange)
+                
+                DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+                
+                anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
+                
+                anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+                
+                z <- nchar(as.character(DNAchange))
+                
+                x <- nchar(as.character(DNAchange))
+                
+                x <- as.numeric(x)* (-1)  
+                
+              }
               
-              
-              
-              z <- nchar(as.character(DNAchange))
-              
-              
-              x <- nchar(as.character(DNAchange))
-              
-              x <- as.numeric(x)* (-1)  
-              
-              
-              if(((substr(Seq_plus, start = 76, stop = 75+z)) == (as.character(DNAchange)))){
+
+              if(((substr(Seq_plus, start = 76, stop = 75+z)) == DNAchange_char)){
                 
                 Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = 75), substr(Seq_plus_char, start = 76-x, stop = 151), sep = "")
                 
@@ -2784,6 +2673,7 @@ observeEvent(input$search, {
               y <- 0
               y <- ((nchar(input$Mutation))-1)/2
               v <- 1
+              n <- y-1
               
               
               DNAchange_mut <- DNAStringSet(substr(input$Mutation,2+y,2+(y*2)))
@@ -2819,10 +2709,7 @@ observeEvent(input$search, {
             
             
             ## Searchig for sense PAM in Prime editing 
-            
-            
-            
-            
+
             ## Upstream PAM for PRIME 
             
             primeUpstreamPAM <- substr(Seq_plus_char_n, 5,81)  
@@ -2830,10 +2717,7 @@ observeEvent(input$search, {
             # smaller search area, since large deletions can otherwise not be searched for (large x):
             
             primeUpstreamPAM2 <- substr(Seq_minus_rev_char_n,71+x+y,110+x+y)
-            
-            
-            
-            
+
             ## prime edits possible:
             
             
@@ -2856,14 +2740,9 @@ observeEvent(input$search, {
             
             
             primeeditabledf <- data.frame(primeeditable)
-            
             primeeditabledf$X2 <- as.character(primeeditabledf$X2)
-            
             primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-            
-            
-            
-            
+
             ## AntiSense strand
             
             primeeditable2 <- NULL;
@@ -2883,9 +2762,7 @@ observeEvent(input$search, {
             
             
             primeeditable2df <- data.frame(primeeditable2)
-            
             primeeditable2df$X2 <- as.character(primeeditable2df$X2)
-            
             primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
             
             
@@ -2933,9 +2810,7 @@ observeEvent(input$search, {
                           Guide[7] <- as.numeric(Guide[7])-6 
                           
                         }
-                        
-                        
-                        
+
                         Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
                         
                         Guide[8] <- paste(as.character(reverseComplement(DNAStringSet(substring(Guide[4], first = 2+((as.numeric(input$RT))-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),as.character(reverseComplement(DNAStringSet(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+(z)+y)))))), sep = "")
@@ -2949,6 +2824,10 @@ observeEvent(input$search, {
                     } 
                   }
                 }
+            }
+              else{
+                  c <- 0
+                  d <- 0
               }
             }
             
@@ -2967,9 +2846,7 @@ observeEvent(input$search, {
                      
                       if(nchar(substr(Seq_minus_rev_char_n[primeeditable2df[i,1]],j+73+x+y,j+92+x+y)) == 20){
                         
-                        
-                        Guide <- c("1",substr(Seq_minus_rev_char_n[primeeditable2df[i,1]],j+73+x+y,j+92+x+y),j+y-z+1, as.character(reverse(DNAStringSet(substr(Seq_plus_char[primeeditable2df[i,1]],((j+76)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+76)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
-                        
+                        Guide <- c("1",substr(Seq_minus_rev_char_n[primeeditable2df[i,1]],j+73+x+y,j+92+x+y),j-z+1, as.character(reverse(DNAStringSet(substr(Seq_plus_char[primeeditable2df[i,1]],((j+76+z+y)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+76+z+y)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
                         
                         if(substr(Seq_minus_rev_char_n[primeeditable2df[i,1]],j+73+x+y,j+73+x+y) != "G")
                         {
@@ -3003,13 +2880,10 @@ observeEvent(input$search, {
                           
                         }
                         
-
-                        Guide[8] <- paste(substring(Guide[4],1,1+(as.numeric(input$RT)+y)-((as.numeric(Guide[3])+z))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT))-(as.numeric(Guide[3])-(2*y)))), sep = "")
-                        
+                        Guide[8] <- paste(substring(Guide[4],1,1+(as.numeric(input$RT))-((as.numeric(Guide[3])+z+y))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT))-(as.numeric(Guide[3])))), sep = "")
                         
                         Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
-                        
-                        
+
                         guides <- rbind(guides,Guide)
                         
                       }
@@ -3021,16 +2895,20 @@ observeEvent(input$search, {
               
               
               }
+              else{
+                
+                c <- 0
+                d <- 0
+              }
             }
             
             
             if (is.null(guides)!= TRUE)
             {
               
-              
-              if(any(as.numeric(guides[,3])+u <= input$RT) == TRUE)
+              if(any(as.numeric(guides[,3])+z+n <= input$RT) == TRUE)
               {
-                guides <- subset(guides, as.numeric(guides[,3])+u <= input$RT)
+                guides <- subset(guides, as.numeric(guides[,3])+z+n <= input$RT)
                 
               }else{
                 
@@ -3041,13 +2919,8 @@ observeEvent(input$search, {
               
               if(is.null(c) | is.null(d) != TRUE)
               {
-                
-                
-                
                 currentguidesdf <- reactive({ 
-                  
-                 
-                  guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding_strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
+                  guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding.strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
                   guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
                   
                 })
@@ -3067,22 +2940,7 @@ observeEvent(input$search, {
             }
             
           }
-         
-          
-          ### Make Oligo table, for ready to clone oligos 
-          
-          
-          currentguidesdf2 <- reactive({ 
-            
-            
-            guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "TargetPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
-            guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
-            
-            
-          }) 
-          
-          
-          
+
           
           if(is.null(a)== TRUE){
             
@@ -3099,14 +2957,14 @@ observeEvent(input$search, {
             })
             
           }
-          else if(is.null(c) & is.null(d) == TRUE){
+          else if(is.null(c) | is.null(d) == TRUE){
             
             output$myText <- renderText({
               
               "Edit is to far away, try to increase the RT length"
             })
           }
-          else if(is.null(guides)== TRUE){
+          else if(is.null(guides) == TRUE){
             
             output$myText <- renderText({
               
@@ -3134,9 +2992,19 @@ observeEvent(input$search, {
                                                     })')
                                                    
                                                    
+                                                   
             ) 
-            
-         
+
+            ### Make Oligo table, for ready to clone oligos 
+
+            currentguidesdf2 <- reactive({ 
+              
+              
+              guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "TargetPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
+              guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
+
+            }) 
+
             output$mytable2 <- DT::renderDataTable({ currentguidesdf2()}, caption = "Ordering Table",options = list(dom = 't'))
           }
           
@@ -3148,11 +3016,10 @@ observeEvent(input$search, {
         
         # Check if there is an input in the 'Edit' input window, but not in the 'Mutation' input window:
  
-      else if ((nchar(input$Edit) > 2) & (nchar(input$Mutation) < 2) || input$SequenceInput == "Sequence input")
+      if ((nchar(input$Edit) > 2) && (nchar(input$Mutation) < 2) || input$SequenceInput == "Sequence input")
         {
-      
-        
-        if((as.character(input$`Gene Orientation`) == "-") == TRUE)
+
+        if((as.character(input$`Gene Orientation`) == "-") == TRUE && input$SequenceInput == "Genomic coordinates")
         {
           c <- 1
           d <- 1
@@ -3161,11 +3028,24 @@ observeEvent(input$search, {
           {
           
           ### Get sequence for Plus Strand
+          
+          # shift sequence by number of deleted bases so also the start coordinate can be used for (-) Strand
             
           if ((substr(as.character(input$Edit),1,3) == "del")==TRUE){
             
             
-          m <- nchar(substring(as.character(input$Edit), first = 4))-1
+            if(is.na(as.numeric(substring(input$Edit,first = 5, last = nchar(input$Edit)-1))) != TRUE)
+            {
+              
+              m <- as.numeric(substring(input$Edit,first = 5, last = nchar(input$Edit)-1))-1
+              
+              
+            }
+            else{
+              
+              m <- nchar(substring(as.character(input$Edit), first = 4))-1
+              
+            }
             
             
           Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = (as.numeric(input$Position)+m)+as.numeric(paste(input$`Gene Orientation`,"75", sep = "")), width = 151)),)
@@ -3218,26 +3098,61 @@ observeEvent(input$search, {
           }
           else if ((substr(as.character(input$Edit),1,3) == "del")==TRUE){
             
-            DNAchange <- DNAStringSet(substring(as.character(input$Edit), first = 4))
-            anti_DNAchange <- complement(DNAchange)
+            # if deletion is already confirmed by the user
             
-            DNAchange_char <- paste("[",as.character(reverse(DNAchange)),"]" ,sep = "")
+            if(is.na(as.numeric(substring(input$Edit,first = 5, last = nchar(input$Edit)-1))) != TRUE)
+            {
+              
+              z <- as.numeric(substring(input$Edit,first = 5, last = nchar(input$Edit)-1))
+              
+              DNAchange <- DNAStringSet((substr(Seq_minus_char, start = 76, stop = 75+z)))
+              
+              anti_DNAchange <- complement(DNAchange)
+              
+              DNAchange_char <- paste("[",as.character(DNAchange),"]" ,sep = "")
+              
+              DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
+              
+              anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              x <- nchar(as.character(DNAchange))
+              
+              x <- as.numeric(x)* (-1)  
+              
+              q <- 1
+              
+            }
             
-            DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+            # if deletion should be checked while running
             
-            anti_DNAchange_char <- paste("[",as.character(reverse(anti_DNAchange)),"]" ,sep = "")
+            else{
+              
+              DNAchange <- DNAStringSet(substring(as.character(input$Edit), first = 4))
+              
+              anti_DNAchange <- complement(DNAchange)
+              
+              DNAchange_char <- paste("[",as.character(DNAchange),"]" ,sep = "")
+              
+              DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              anti_DNAchange_char <- paste("[",as.character(reverse(anti_DNAchange)),"]" ,sep = "")
+              
+              anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              z <-  nchar(as.character(DNAchange))
+              
+              x <- nchar(as.character(DNAchange))
+              
+              x <- as.numeric(x)* (-1)  
+              
+              q <- 1
+              
+            }
             
-            anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
             
-            z <-  nchar(as.character(DNAchange))
-            
-            x <- nchar(as.character(DNAchange))
-            
-            x <- as.numeric(x)* (-1)  
-            
-            q <- 1
-            
-            if(((substr(Seq_minus_char, start = 76, stop = 75+z)) == as.character(reverse(DNAStringSet(substring(as.character(input$Edit), first = 4)))))==TRUE){
+            if(((substr(Seq_minus_char, start = 76, stop = 75+z)) == DNAchange) == TRUE){
               
               Seq_plus_rev_char_n <- paste(substr(Seq_plus_rev_char, start = 1, stop = 75), substr(Seq_plus_rev_char, start = 76+z, stop = 151), sep = "")
               Seq_minus_char_n <- paste(substr(Seq_minus_char, start = 1, stop = 75), substr(Seq_minus, start = 76+z, stop = 151), sep = "")
@@ -3286,10 +3201,7 @@ observeEvent(input$search, {
           
           
           ## Searchig for sense PAM in Prime editing 
-          
-          
-          
-          
+
           ## Upstream PAM for PRIME 
           
           primeUpstreamPAM <- substr(Seq_minus_char, 5,81)  
@@ -3308,24 +3220,17 @@ observeEvent(input$search, {
           for(i in 1:length(primeUpstreamPAM))
           {
             if (grepl( "AGG", primeUpstreamPAM[i]) == TRUE || grepl( "CGG", primeUpstreamPAM[i]) == TRUE || grepl( "GGG", primeUpstreamPAM[i]) == TRUE || grepl( "TGG", primeUpstreamPAM[i]) == TRUE ){
-              
-              
+             
               temp <- c(i,primeUpstreamPAM[i])
               primeeditable <- rbind(primeeditable, temp)
-              
               
             }
           }
           
           
           primeeditabledf <- data.frame(primeeditable)
-          
           primeeditabledf$X2 <- as.character(primeeditabledf$X2)
-          
           primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-          
-          
-          
           
           ## AntiSense strand
           
@@ -3335,23 +3240,17 @@ observeEvent(input$search, {
           for(i in 1:length(primeUpstreamPAM2))
           {
             if (grepl( "GGA", primeUpstreamPAM2[i]) == TRUE || grepl( "GGC", primeUpstreamPAM2[i]) == TRUE || grepl( "GGG", primeUpstreamPAM2[i]) == TRUE || grepl( "GGT", primeUpstreamPAM2[i]) == TRUE ){
-              
-              
+
               temp <- c(i,primeUpstreamPAM2[i])
               primeeditable2 <- rbind(primeeditable2, temp)
               
               
             }
           }
-          
-          
+
           primeeditable2df <- data.frame(primeeditable2)
-          
           primeeditable2df$X2 <- as.character(primeeditable2df$X2)
-          
           primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
-          
-          
           
           
           if(is.null(a) != TRUE && is.null(b) != TRUE){
@@ -3360,21 +3259,17 @@ observeEvent(input$search, {
             
             ## Sense strand
             
-            
             for (i in 1:nrow(primeeditabledf))
               for (j in 1:(nchar(primeeditabledf[1,2])-2))
               {
                 {
                   if (grepl( "AGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(primeeditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE ){
-                    
 
-                    
                     if(nchar(substr(Seq_minus_char[primeeditabledf[i,1]],(j-16),j+3)) == 20)
                     {
                       
                       Guide <- c("1",substr(Seq_minus_char[primeeditabledf[i,1]],j-16,j+3),76-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char_n[primeeditabledf[i,1]],(j+1) - as.numeric(input$PBS),((j+1) - (as.numeric(input$PBS)))+ (as.numeric(input$RT)+as.numeric(input$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Sense")
-                 
-
+                      
                       if(substr(Seq_minus_char[primeeditabledf[i,1]],j-16,j-16) != "G")
                       {
                         
@@ -3437,19 +3332,14 @@ observeEvent(input$search, {
                     {
                     
                     Guide <- c("1",substr(Seq_plus_rev_char[primeeditable2df[i,1]],j+73,j+92),j, as.character(reverse(DNAStringSet(substr(Seq_minus_char_n[primeeditable2df[i,1]],((j+76)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+76)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
-                    
-                    #Guide <- c(row.names(input),substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+33,j+52),j, as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],(j+37)-as.numeric(input$PBS),((j+37)-(as.numeric(input$PBS)))+(as.numeric(input$RT)+as.numeric(input$PBS)-1))))), "NGG", "Antisense")
-                    
-                  
+                    Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                     
                     if(substr(Seq_plus_rev_char[primeeditable2df[i,1]],j+92,j+92) != "G")
                     {
                       
-                      Guide[2] <- paste(Guide[2],"g", sep = "") 
+                      Guide[2] <- paste("g",Guide[2], sep = "") 
                       
                     }
-                    
-                    Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                     
                     Guide[4] <- as.character(reverse(DNAStringSet(Guide[4])))
                     
@@ -3479,10 +3369,8 @@ observeEvent(input$search, {
                     ## Add Guide[8] with the html tagged edit in red and bold on the coding strand
                     
                     Guide[8] <- paste(substring(Guide[4],1,as.numeric(input$RT)-((as.numeric(Guide[3])))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 1+y+u+((as.numeric(input$RT)-(as.numeric(Guide[3]))))), sep = "")
-                    
                     guides <- rbind(guides,Guide)
-                    
- 
+
                   }
                   }
                 }
@@ -3492,16 +3380,14 @@ observeEvent(input$search, {
             
             
           }
-          
-            
-            
+
           if (is.null(guides)!= TRUE)
           {
             
             
-            if(any(((as.numeric(guides[,3])+u+z) <= input$RT) || (as.numeric(guides[,3])+u-z >= 0)))
+            if(any((as.numeric(guides[,3])+u) <= input$RT) && any((as.numeric(guides[,3])+u-z) >= 0))
             {
-              guides <- subset(guides, as.numeric(guides[,3])+u+z <= input$RT)
+              guides <- subset(guides, as.numeric(guides[,3])+u <= input$RT)
               guides <- subset(guides,(as.numeric(guides[,3])+u-z) >= 0)
               
             }else{
@@ -3512,7 +3398,7 @@ observeEvent(input$search, {
             }
           
             
-            if(is.null(c) || is.null(d) != TRUE)
+            if(is.null(c) | is.null(d) != TRUE)
             {
           
           currentguidesdf <- reactive({ 
@@ -3536,21 +3422,16 @@ observeEvent(input$search, {
           }
           
           }
-        
-     
-        
+
         if((as.character(input$`Gene Orientation`) == "+") == TRUE || input$SequenceInput == "Sequence input")
         {
           c <- 1
           d <- 1
           
-          
           ### Get sequence for Plus Strand
           
           if (input$SequenceInput == "Sequence input")
           {
-            
-            
             RIGHT = function(x,n){
               substring(x,nchar(x)-n+1)
             }
@@ -3595,8 +3476,6 @@ observeEvent(input$search, {
             }
             else if ((substr(input$Edit2,1,3) == "del")==TRUE){
   
-              
-              
               z <- nchar(substring(input$Edit2, first = 4))
               
               Seq_plus <- DNAStringSet(paste(RIGHT(input$UpstreamSequence,75), substring(input$Edit2, first = 4), substring(input$DownstreamSequence,0,76-z), sep = ""))
@@ -3652,6 +3531,8 @@ observeEvent(input$search, {
             else if(grepl(">", input$Edit2) == TRUE) { 
               
               y <- ((nchar(as.character(input$Edit2)))-1)/2
+              
+              n <- y-1
               
               Seq_plus <- DNAStringSet(paste(RIGHT(input$UpstreamSequence,75), substr(input$Edit2,0,y), substring(input$DownstreamSequence,0,75), sep = ""))
               
@@ -3746,29 +3627,59 @@ observeEvent(input$search, {
           }
           else if ((substr(input$Edit,1,3) == "del")==TRUE){
             
-            DNAchange <- DNAStringSet(substring(input$Edit, first = 4))
+            # if deletion is already confirmed by the user
             
-            anti_DNAchange <- complement(DNAchange)
+            if(is.na(as.numeric(substring(input$Edit,first = 5, last = nchar(input$Edit)-1))) != TRUE)
+            {
+              
+              z <- as.numeric(substring(input$Edit,first = 5, last = nchar(input$Edit)-1))
+              
+              DNAchange <- DNAStringSet((substr(Seq_plus, start = 76, stop = 75+z)))
+              
+              anti_DNAchange <- complement(DNAchange)
+              
+              DNAchange_char <- paste("[",as.character(DNAchange),"]" ,sep = "")
+              
+              DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              anti_DNAchange_char <- as.character(reverse(anti_DNAchange))
+              
+              anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              x <- nchar(as.character(DNAchange))
+              
+              x <- as.numeric(x)* (-1)  
+              
+            }
             
+            # if deletion should be checked while running
             
-            DNAchange_char <- paste("[",as.character(DNAchange),"]" ,sep = "")
+            else{
+              
+              DNAchange <- DNAStringSet(substring(input$Edit, first = 4))
+              
+              anti_DNAchange <- complement(DNAchange)
+              
+              DNAchange_char <- paste("[",as.character(DNAchange),"]" ,sep = "")
+              
+              DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              anti_DNAchange_char <- paste("[",as.character(reverse(anti_DNAchange)),"]" ,sep = "")
+              
+              anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
+              
+              z <- nchar(as.character(DNAchange))
+              
+              x <- nchar(as.character(DNAchange))
+              
+              x <- as.numeric(x)* (-1)  
+              
+              m <- z-1
+              
+              
+            }
             
-            DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
-            
-            anti_DNAchange_char <- paste("[",as.character(reverse(anti_DNAchange)),"]" ,sep = "")
-            
-            anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
-            
-            z <- nchar(as.character(DNAchange))
-            
-            x <- nchar(as.character(DNAchange))
-            
-            x <- as.numeric(x)* (-1)  
-            
-            m <- z-1
-            
-            
-            if(((substr(Seq_plus, start = 76, stop = 75-x)) == (as.character(DNAchange)))==TRUE){
+            if(((substr(Seq_plus, start = 76, stop = 75-x)) == as.character(DNAchange))==TRUE){
               
               Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = 75), substr(Seq_plus_char, start = 76-x, stop = 151), sep = "")
               
@@ -3784,10 +3695,10 @@ observeEvent(input$search, {
             
           }
           else if(grepl(">", input$Edit) == TRUE) { 
-            
-            
-       
+
             y <- ((nchar(input$Edit))-1)/2
+            
+            n <- y-1
             
             v <- 1
             
@@ -3827,9 +3738,7 @@ observeEvent(input$search, {
             
           }
           
-          
           ## Searchig for sense PAM in Prime editing 
-          
           
           if(is.null(s) != TRUE)
           {
@@ -3837,14 +3746,9 @@ observeEvent(input$search, {
           ## Upstream PAM for PRIME 
           
           primeUpstreamPAM <- substr(Seq_plus_char, 5,81)  
-          
           primeUpstreamPAM2 <- substr(Seq_minus_rev_char,71,147)
-          
-          
-          
-          
+
           ## prime edits possible:
-          
           
           ## Sense strand
           
@@ -3863,16 +3767,10 @@ observeEvent(input$search, {
             }
           }
           
-          
           primeeditabledf <- data.frame(primeeditable)
-          
           primeeditabledf$X2 <- as.character(primeeditabledf$X2)
-          
           primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-          
-          
-          
-          
+
           ## AntiSense strand
           
           primeeditable2 <- NULL;
@@ -3890,11 +3788,8 @@ observeEvent(input$search, {
             }
           }
           
-          
           primeeditable2df <- data.frame(primeeditable2)
-          
           primeeditable2df$X2 <- as.character(primeeditable2df$X2)
-          
           primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
           
           
@@ -3915,7 +3810,8 @@ observeEvent(input$search, {
                     if((nchar(substr(Seq_plus_char[primeeditabledf[i,1]],(j-16),j+3)) == 20))
                     {
                      
-                      Guide <- c("1",substr(Seq_plus_char[primeeditabledf[i,1]],j-16,j+3),76-j,as.character(reverse(DNAStringSet(substr(Seq_minus_rev_char_n[primeeditabledf[i,1]],(j+1) - as.numeric(input$PBS),((j+1) - (as.numeric(input$PBS)))+ (as.numeric(input$RT)+as.numeric(input$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Sense")
+                      Guide <- c("1",substr(Seq_plus_char[primeeditabledf[i,1]],j-16,j+3),76-j,as.character(reverse(DNAStringSet(substr(Seq_minus_rev_char_n[primeeditabledf[i,1]],(j+1) - input$PBS,((j+1) - (input$PBS))+ (input$RT+input$PBS-1))))),substr(primeeditabledf[i,2], j,j+2), "Sense")
+
                       
                       if(substr(Seq_plus_char[primeeditabledf[i,1]],j-16,j-16) != "G")
                       {
@@ -3947,8 +3843,9 @@ observeEvent(input$search, {
                       
                       
                       Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
+                      
                       Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 2+((as.numeric(input$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+y+x+z))))), sep = "")
-
+                      
                       guides <- rbind(guides,Guide)
                       
                     }
@@ -3990,8 +3887,6 @@ observeEvent(input$search, {
                         
                       }
                       
-                     
-                      
                       Guide[7] <- 0
                       
                       if((substr(Guide[4],1,1) == "C") == TRUE){
@@ -4013,15 +3908,10 @@ observeEvent(input$search, {
                         
                       }
                       
-                      
-                      
                       Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
-                      
+                  
                       Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+v+x+z+p-m))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT)-(as.numeric(Guide[3])+p-m-y+v)))), sep = "")
-                      
-                      
-                      
-                      
+
                       guides <- rbind(guides,Guide)
                       
                     }
@@ -4036,9 +3926,9 @@ observeEvent(input$search, {
           
           if (is.null(guides)!= TRUE)
           {
-            if(any((as.numeric(guides[,3])+u+z) <= input$RT) == TRUE)
+            if(any((as.numeric(guides[,3])+u+n) <= input$RT) == TRUE)
             {
-              guides <- subset(guides, as.numeric(guides[,3])+u+z <= input$RT)
+              guides <- subset(guides, as.numeric(guides[,3])+u+n <= input$RT)
 
             }else{
               
@@ -4049,12 +3939,10 @@ observeEvent(input$search, {
 
             if(is.null(c) || is.null(d) != TRUE)
             {
-          
-          
-          currentguidesdf <- reactive({ 
-            
-            guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]),"Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding.strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
-            guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
+
+            currentguidesdf <- reactive({ 
+              guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]),"Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))) , "EditPos." = guides[,3], "Extension(coding.strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
+              guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
             
           })
           
@@ -4062,21 +3950,24 @@ observeEvent(input$search, {
             
           
           }
-          
-          
-          
-          
+
           }
           else if(is.null(s) == TRUE)
           {
-            print("wrong coordinates")
+            #print("wrong coordinates")
           }
         }
           
-
-
         
-        if(is.null(a) == TRUE){
+        if(input$PBS > 17)
+        {
+          output$myText <- renderText({
+            
+            "Please select a valid PBS length! (1-17 nt)"
+          })
+
+        }
+        else if(is.null(a) == TRUE){
           
           output$myText <- renderText({
             
@@ -4123,7 +4014,7 @@ observeEvent(input$search, {
           currentguidesdf2 <- reactive({ 
             
             
-            guidesdf <- data.frame("Variant" = input$Variant, "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "EditPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
+            guidesdf <- data.frame("Variant" = input$Variant, "Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "EditPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE)
             guidesdf[order(guidesdf$Score,decreasing = TRUE), ]
             
           }) 
@@ -4151,11 +4042,6 @@ observeEvent(input$search, {
                                                   
                                                  ) 
           
-          
-      
-          
-          
-          
         
           output$mytable2 <- DT::renderDataTable({ currentguidesdf2()}, caption = "Ordering Table",options = list(dom = 't'))
           
@@ -4169,10 +4055,10 @@ observeEvent(input$search, {
         
         output$downloadData <- downloadHandler(
           filename = function() {
-            paste('pegRNA Oligos for cloning-', Sys.Date(), '.csv', sep='')
+            paste('pegRNA Oligos for cloning-',input$Variant, "-", Sys.Date(), '.csv', sep='')
           },
           content = function(con) {
-            write.csv(data.frame("Variant" = input$Variant, "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "TargetPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), "PBS" = input$PBS, "RTT" = input$RT, stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
+            write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "TargetPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], "PBS" = input$PBS, "RTT" = input$RT, stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
           }
         )
         
@@ -4188,12 +4074,13 @@ observeEvent(input$search, {
       
       if(input$Mode == 'Multi Sample Run') {
         
-
-        withProgress(message = 'Generating Oligos', value = 0, {
+        updateButton(session, "search",disabled = TRUE)
         
         inFile <- input$file1
         
         inFile <- read.csv(inFile$datapath, header = TRUE, sep = ";", stringsAsFactors = FALSE)
+        
+        withProgress(message = 'Generating Oligos', value = 0, {
         
         if(input$Editing == "Base editing")
         {
@@ -4257,37 +4144,21 @@ observeEvent(input$search, {
           # '-NNGRRT' is for Sa-ABEmax; '-NNHRRT' is for SaKKH-ABEmax
           
           Seq_minus_char_NGG <- Seq_minus_char
-          
           Seq_minus_char_NGA <- Seq_minus_char
-          
           Seq_minus_char_NGCG <- Seq_minus_char
-          
           Seq_minus_char_NNGRRT <- Seq_minus_char
-          
           Seq_minus_char_NNHRRT <- Seq_minus_char
-          
           Seq_minus_char_NGC <- Seq_minus_char
-          
           Seq_minus_char_NYN <- Seq_minus_char
           
-          
           Seq_plus_char_NGG <- Seq_plus_char
-          
           Seq_plus_char_NGA <- Seq_plus_char
-          
           Seq_plus_char_NGCG <- Seq_plus_char
-          
           Seq_plus_char_NNGRRT <- Seq_plus_char
-          
           Seq_plus_char_NNHRRT <- Seq_plus_char
-          
           Seq_plus_char_NGC <- Seq_plus_char
-          
           Seq_plus_char_NYN <- Seq_plus_char
-          
-          
-          
-          
+
           incProgress(1/nrow(inFile), detail = paste("Variant", k))
           
           
@@ -4320,7 +4191,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectUpstreamPAM))
               {
                 if (grepl( "AGG", PerfectUpstreamPAM[i]) == TRUE || grepl( "GGG", PerfectUpstreamPAM[i]) == TRUE || grepl( "CGG", PerfectUpstreamPAM[i]) == TRUE || grepl( "TGG", PerfectUpstreamPAM[i]) == TRUE ){    
-                  #print(c(i,PerfectUpstreamPAM[i]))
+
                   tmp1 <- c(i,PerfectUpstreamPAM[i])
                   minus_perfecteditable <- rbind(minus_perfecteditable,tmp1)
                   
@@ -4363,11 +4234,9 @@ observeEvent(input$search, {
                             
                             tmp <- 5+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -4462,7 +4331,6 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectDownstreamPAM))
               {
                 if (grepl( "AGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "GGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "CGG", PerfectDownstreamPAM[i]) == TRUE || grepl( "TGG", PerfectDownstreamPAM[i]) == TRUE ){    
-                  #print(c(i,PerfectDownstreamPAM[i]))
                   tmp <- c(i,PerfectDownstreamPAM[i])
                   plus_perfecteditable <- rbind(plus_perfecteditable,tmp)
                   
@@ -4487,11 +4355,7 @@ observeEvent(input$search, {
                   {
                     {
                       if (grepl( "AGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(plus_perfecteditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE ){
-                        
-                        
-                        
-                        #print(plus_perfecteditabledf[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
+     
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],18+j,37+j),26-(17+j),substr(plus_perfecteditabledf[i,2], j,j+2),"ABEmax/ABE8e",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -4505,11 +4369,9 @@ observeEvent(input$search, {
                             
                             tmp <- 5+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -4599,7 +4461,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectUpstreamPAM_NGA))
               {
                 if (grepl( "AGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectUpstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectUpstreamPAM_NGA[i]) == TRUE ){    
-                  #print(c(i,PerfectUpstreamPAM_NGA[i]))
+
                   tmp <- c(i,PerfectUpstreamPAM_NGA[i])
                   minus_perfecteditable_NGA <- rbind(minus_perfecteditable_NGA,tmp)
                   
@@ -4622,8 +4484,6 @@ observeEvent(input$search, {
                     {
                       if (grepl( "AGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(minus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(minus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
                         
-                        #print(minus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char_NGA[minus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -4639,11 +4499,9 @@ observeEvent(input$search, {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -4726,7 +4584,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectDownstreamPAM_NGA))
               {
                 if (grepl( "AGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "GGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "CGA", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "TGA", PerfectDownstreamPAM_NGA[i]) == TRUE ){    
-                  #print(c(i,PerfectDownstreamPAM_NGA[i]))
+
                   tmp <- c(i,PerfectDownstreamPAM_NGA[i])
                   plus_perfecteditable_NGA <- rbind(plus_perfecteditable_NGA,tmp)
                   
@@ -4750,8 +4608,6 @@ observeEvent(input$search, {
                     {
                       if (grepl( "AGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "GGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE || grepl( "CGA", substr(plus_perfecteditabledf_NGA[i,2],j,j+2)) == TRUE || grepl( "TGA", substr(plus_perfecteditabledf_NGA[i,2], j,j+2)) == TRUE ){
                         
-                        #print(plus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGA[plus_perfecteditabledf_NGA[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf_NGA[i,2], j,j+2),"NG-ABEmax/ABE8e, VRQR-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -4767,11 +4623,9 @@ observeEvent(input$search, {
                             
                             tmp <- 3+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -4912,11 +4766,9 @@ observeEvent(input$search, {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -5007,7 +4859,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectDownstreamPAM_NGCG))
               {
                 if (grepl( "AGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "GGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "CGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE || grepl( "TGCG", PerfectDownstreamPAM_NGCG[i]) == TRUE ){    
-                  #print(c(i,PerfectDownstreamPAM_NGCG[i]))
+
                   tmp <- c(i,PerfectDownstreamPAM_NGCG[i])
                   plus_perfecteditable_NGCG <- rbind(plus_perfecteditable_NGCG,tmp)
                   
@@ -5033,10 +4885,7 @@ observeEvent(input$search, {
                     {
                       if (grepl( "AGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "GGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE || grepl( "CGCG", substr(plus_perfecteditable_NGCGdf[i,2],j,j+3)) == TRUE || grepl( "TGCG", substr(plus_perfecteditable_NGCGdf[i,2], j,j+3)) == TRUE ){
                         
-                        
-                        
-                        #print(plus_perfecteditable_NGCGdf[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
+           
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGCG[plus_perfecteditable_NGCGdf[i,1]],19+j,38+j),25-(17+j),substr(plus_perfecteditable_NGCGdf[i,2], j,j+3),"NG-ABEmax/ABE8e",inFile[k,]$Variant)
                         
                         tmp2 <- NULL
@@ -5053,11 +4902,9 @@ observeEvent(input$search, {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -5152,7 +4999,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectUpstreamPAM_NNGRRT))
               {
                 if (grepl( "GAAT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GAGT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GGGT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE || grepl( "GGAT", PerfectUpstreamPAM_NNGRRT[i]) == TRUE ){    
-                  #print(c(i,PerfectUpstreamPAM_NNGRRT[i]))
+
                   tmp1 <- c(i,PerfectUpstreamPAM_NNGRRT[i])
                   minus_perfecteditable_NNGRRT <- rbind(minus_perfecteditable_NNGRRT,tmp1)
                   
@@ -5198,11 +5045,10 @@ observeEvent(input$search, {
                             
                             tmp <- 2+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
+
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -5331,11 +5177,9 @@ observeEvent(input$search, {
                             
                             tmp <- 2+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -5473,11 +5317,9 @@ observeEvent(input$search, {
                               
                               tmp <- 3+l
                               tmp2 <- rbind(tmp2,tmp)
-                              #print("yeha")
                               
                             }else{
-                              
-                              #print("bla")
+
                             }
                           }
                           
@@ -5573,7 +5415,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectDownstreamPAM_NNHRRT))
               {
                 if (grepl( "GAAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "GAGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "GGGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "GGAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TAAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TAGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TGGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "TGAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AAAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AAGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AGGT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE || grepl( "AGAT", PerfectDownstreamPAM_NNHRRT[i]) == TRUE ){    
-                  #print(c(i,PerfectDownstreamPAM_NNHRRT[i]))
+                  
                   tmp <- c(i,PerfectDownstreamPAM_NNHRRT[i])
                   plus_perfecteditable_NNHRRT <- rbind(plus_perfecteditable_NNHRRT,tmp)
                   
@@ -5617,11 +5459,9 @@ observeEvent(input$search, {
                               
                               tmp <- 3+l
                               tmp2 <- rbind(tmp2,tmp)
-                              #print("yeha")
                               
                             }else{
                               
-                              #print("bla")
                             }
                           }
                           
@@ -5735,9 +5575,7 @@ observeEvent(input$search, {
                   {
                     {
                       if (grepl( "AGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(minus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(minus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
-                        
-                        #print(minus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
+
                         Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char_NGC[minus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -5753,11 +5591,9 @@ observeEvent(input$search, {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
                             
-                            #print("bla")
                           }
                         }
                         
@@ -5863,8 +5699,6 @@ observeEvent(input$search, {
                     {
                       if (grepl( "AGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE || grepl( "CGC", substr(plus_perfecteditabledf_NGC[i,2],j,j+2)) == TRUE || grepl( "TGC", substr(plus_perfecteditabledf_NGC[i,2], j,j+2)) == TRUE ){
                         
-                        #print(plus_perfecteditabledf_NGA[i,2])
-                        #print(FANCA_char[perfect_editable_sense[i,1]])
                         Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGC[plus_perfecteditabledf_NGC[i,1]],20+j,39+j),26-(19+j), substr(plus_perfecteditabledf_NGC[i,2], j,j+2),"SpG-ABEmax",inFile[k,]$Variant)
                         tmp2 <- NULL
                         
@@ -5880,11 +5714,9 @@ observeEvent(input$search, {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -5970,7 +5802,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectUpstreamPAM_NYN))
               {
                 if (grepl( "C", PerfectUpstreamPAM_NYN[i]) == TRUE || grepl( "T", PerfectUpstreamPAM_NYN[i]) == TRUE || grepl( "A", PerfectUpstreamPAM_NYN[i]) == TRUE){    
-                  #print(c(i,PerfectUpstreamPAM_NGA[i]))
+
                   tmp <- c(i,PerfectUpstreamPAM_NYN[i])
                   minus_perfecteditable_NYN <- rbind(minus_perfecteditable_NYN,tmp)
                   
@@ -6009,11 +5841,9 @@ observeEvent(input$search, {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -6107,7 +5937,7 @@ observeEvent(input$search, {
               for(i in 1:length(PerfectDownstreamPAM_NYN))
               {
                 if (grepl( "C", PerfectDownstreamPAM_NGA[i]) == TRUE || grepl( "T", PerfectDownstreamPAM_NGA[i]) == TRUE|| grepl( "A", PerfectDownstreamPAM_NGA[i]) == TRUE){    
-                  #print(c(i,PerfectDownstreamPAM_NGA[i]))
+                  
                   tmp <- c(i,PerfectDownstreamPAM_NYN[i])
                   plus_perfecteditable_NYN <- rbind(plus_perfecteditable_NYN,tmp)
                   
@@ -6146,11 +5976,9 @@ observeEvent(input$search, {
                             
                             tmp <- 4+l
                             tmp2 <- rbind(tmp2,tmp)
-                            #print("yeha")
                             
                           }else{
-                            
-                            #print("bla")
+
                           }
                         }
                         
@@ -6279,7 +6107,6 @@ observeEvent(input$search, {
         }
         
         else if (input$Editing == "Prime editing") 
-          
         {
           
           output$downloadData <- downloadHandler(
@@ -6428,7 +6255,6 @@ observeEvent(input$search, {
               y <- as.numeric(((nchar(inFile[k,]$Edit))-1)/2)
               n <- y-1
               
-              
               DNAchange <- DNAStringSet(substr(inFile[k,]$Edit,2+y,2+(y*2)))
               anti_DNAchange <- complement(DNAchange)
               
@@ -6460,10 +6286,7 @@ observeEvent(input$search, {
 
         
             ## Searchig for sense PAM in Prime editing 
-            
-            
-            
-            
+
             ## Upstream PAM for PRIME 
             
             primeUpstreamPAM <- substr(Seq_minus_char, 5,81)  
@@ -6493,12 +6316,8 @@ observeEvent(input$search, {
             
             
             primeeditabledf <- data.frame(primeeditable)
-            
             primeeditabledf$X2 <- as.character(primeeditabledf$X2)
-            
             primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-            
-            
             
             
             ## AntiSense strand
@@ -6520,20 +6339,13 @@ observeEvent(input$search, {
             
             
             primeeditable2df <- data.frame(primeeditable2)
-            
             primeeditable2df$X2 <- as.character(primeeditable2df$X2)
-            
             primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
-            
-            
-            
-            
+
             if(is.null(primeeditable) != TRUE){
               
               
               ## Sense strand
-              
-              
               
               for (i in 1:nrow(primeeditabledf))
                 for (j in 1:(nchar(primeeditabledf[1,2])-2))
@@ -6557,9 +6369,7 @@ observeEvent(input$search, {
                         }
                         
                         Guide[7] <- 0
-                        
-                        
-                        
+
                         if((substr(Guide[4],1,1) == "C") == TRUE){
                           
                           Guide[7] <- as.numeric(Guide[7])-28
@@ -6578,9 +6388,7 @@ observeEvent(input$search, {
                           Guide[7] <- as.numeric(Guide[7])-6
                           
                         }
-                        
-                        
-                        
+
                         Guide[7] <- as.numeric(Guide[7]) - as.numeric(Guide[3])
                         
                         Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 1+y+q+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+u-q))))), sep = "")
@@ -6853,14 +6661,9 @@ observeEvent(input$search, {
               
               
               primeeditabledf <- data.frame(primeeditable)
-              
               primeeditabledf$X2 <- as.character(primeeditabledf$X2)
-              
               primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
-              
-              
-              
-              
+
               ## AntiSense strand
               
               primeeditable2 <- NULL;
@@ -6880,9 +6683,7 @@ observeEvent(input$search, {
               
               
               primeeditable2df <- data.frame(primeeditable2)
-              
               primeeditable2df$X2 <- as.character(primeeditable2df$X2)
-              
               primeeditable2df$X1 <- as.numeric(primeeditable2df$X1)
           
               
@@ -6932,17 +6733,11 @@ observeEvent(input$search, {
                             Guide[7] <- as.numeric(Guide[7])-6
                             
                           }
-                          
-                          
-                          
-                          
+
                           Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
-                          
-                          
-                          
+
                           Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 2+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged), reverseComplement(DNAStringSet(substring(Guide[4],1,1+as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+y+x+z))))), sep = "")
 
-                          
                           guides <- rbind(guides,Guide)
                           
                           }else if(as.numeric(76-j)+u-p+y > as.numeric(inFile[k,]$RT))
@@ -6980,8 +6775,6 @@ observeEvent(input$search, {
              
                           Guide <- c(row.names(inFile[k,]),substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+73,j+92),j,as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],((j+76+x)+(as.numeric(inFile[k,]$PBS)))-(as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)),((j+76+x)+(as.numeric(inFile[k,]$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
 
-                          
-                          
                           Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                           
                           Guide[4] <- as.character(reverse(DNAStringSet(Guide[4])))
@@ -7150,20 +6943,19 @@ observeEvent(input$search, {
         
             
       }) 
-        
       
         
       }
+  
+#-----------------------------------------------------------------------------------------------------------------#    
+#-----------------------------------------------------------------------------------------------------------------#
 
-         updateButton(session, "search",disabled = TRUE)
-
-         
          shinyjs::runjs("window.scrollTo({
                         top: 0,
                         right: 200,
                         behavior: 'smooth'
                         })")
-         
+
          shinyjs::showElement(id = "download")
          output$download <- renderUI({
            tagList(
@@ -7171,12 +6963,28 @@ observeEvent(input$search, {
            
            )
            })
-       
-      
-    
-    })
- 
 
- 
-})
+    })
+
+# Reset Button implementation in the server logic. 
+# Important parameters are set to NULL before start of another search round.
+
+observeEvent(input$reset,{
+    
+    c <- 1
+    d <- 1
+    x <- 0
+    
+    output$mytable <- NULL
+    output$myText <- NULL
+    output$mytable2 <- NULL
+    
+    ## Download Button is hidden after pressing the reset button
+    
+    shinyjs::hideElement(id = "download")
+    updateButton(session, "search", disabled = FALSE)
+    
+  })
   
+})
+
