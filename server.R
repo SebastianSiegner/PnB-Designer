@@ -4050,8 +4050,12 @@ observeEvent(input$search,{
                    # Check if the edited is included in the nicking guide protospacer
                    currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
                    
+           
                    # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                    currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+                   
+                   # Change minus for PE3b
+                   currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
                    
                  }
  
@@ -4073,6 +4077,9 @@ observeEvent(input$search,{
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                   currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+
+                  # Change minus for PE3b
+                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
                   
                 }
                 
@@ -5275,6 +5282,9 @@ observeEvent(input$search,{
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                   currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
                   
+                  # Change minus for PE3b
+                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
+                  
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
@@ -5295,6 +5305,9 @@ observeEvent(input$search,{
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                   currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+
+                  # Change minus for PE3b
+                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
                   
                 }
                 
@@ -5338,9 +5351,17 @@ observeEvent(input$search,{
                 currentnickingguidesdf2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < 100),]
                 currentnickingguidesdf3 <- NULL
                 
-                if(as.numeric(guidesdf_ordered[f,5]) < 15)
+                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
                 {
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b'& currentnickingguidesdf$DistfromInitialNick > -15 & currentnickingguidesdf$DistfromInitialNick < 12),]
+                  # Check if the edited is included in the nicking guide protospacer
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
+                  
+                  # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+                  
+                  # Change minus for PE3b
+                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
+                  
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2)
@@ -5352,9 +5373,17 @@ observeEvent(input$search,{
                 currentnickingguidesdf2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < 100),]
                 currentnickingguidesdf3 <- NULL
                 
-                if(as.numeric(guidesdf_ordered[f,5]) < 15)
+                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
                 {
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & currentnickingguidesdf$DistfromInitialNick > -15 & currentnickingguidesdf$DistfromInitialNick < 12),]
+                  # Check if the edited is included in the nicking guide protospacer
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
+                  
+                  # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+                  
+                  # Change minus for PE3b
+                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
+                  
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2)
@@ -9106,8 +9135,8 @@ observeEvent(input$search,{
               
               }else {
                 
-                guidesdf <- data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(Sense)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
-                
+                guidesdf <- subset(data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(Sense)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE), guides[,6] != "Edit too far away, try to increase the RT length!")
+              
                 
               }
               
@@ -9261,6 +9290,9 @@ observeEvent(input$search,{
                     # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                     currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
                     
+                    # Change minus for PE3b
+                    currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
+                    
                   }
                   
                   currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
@@ -9281,6 +9313,9 @@ observeEvent(input$search,{
                     
                     # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                     currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+                    
+                    # Change minus for PE3b
+                    currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
                     
                   }
                   
