@@ -61,7 +61,7 @@ shinyUI(
     ),
     
     shinyjs::useShinyjs(),
-    shinyjs::extendShinyjs(text = jscode),
+    #shinyjs::extendShinyjs(text = jscode),
 
 
     theme = shinytheme("yeti"),
@@ -186,7 +186,7 @@ shinyUI(
                                        ".csv")),
                                        tags$hr(),
                              conditionalPanel(condition = "input.Editing == 'Prime editing'",
-                              checkboxInput("expert", "Show all possible Oligos", FALSE ),
+                              checkboxInput("expert", "Show all possible pegRNAs", FALSE ),
                                              ),
                              ),
   

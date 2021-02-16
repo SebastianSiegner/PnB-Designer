@@ -6,15 +6,17 @@
 # install.packages("shiny")
 # devtools::install_github("timelyportfolio/sweetalertR")
 # install.packages("BSgenome")
+# devtools::install_github("timelyportfolio/sweetalertR")
 
 #BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
 #BiocManager::install("BSgenome.Mmusculus.UCSC.mm10")
-#BiocManager::install("BSgenome.Osativa.MSU.MSU7")
 #BiocManager::install("BSgenome.Drerio.UCSC.danRer11")
 #BiocManager::install("BSgenome.Vvinifera.URGI.IGGP12Xv2")
 #BiocManager::install("BSgenome.Athaliana.TAIR.TAIR9")
 #BiocManager::install("GenomeInfoDb")
 #BiocManager::install("GenomicRanges")
+#BiocManager::install("BSgenome.Osativa.MSU.MSU7")
+
 
 library(devtools)
 library(crayon)
@@ -24,17 +26,16 @@ library(shinyjs)
 library(V8)
 library("BSgenome.Hsapiens.UCSC.hg38")
 library("BSgenome.Mmusculus.UCSC.mm10")
-library("BSgenome.Osativa.MSU.MSU7")
+#library("BSgenome.Osativa.MSU.MSU7")
 library("BSgenome.Drerio.UCSC.danRer11")
 library("BSgenome.Vvinifera.URGI.IGGP12Xv2")
 library("BSgenome.Athaliana.TAIR.TAIR9")
-library("BSgenome")
 library("GenomeInfoDb")
 library("GenomicRanges")
 
 # Defines the possible input file size (At the moment set to 8 MB)
 
-options(shiny.maxRequestSize=0.07*1024^2) 
+options(shiny.maxRequestSize=8*1024^2) 
 
 # Define server logic required to produce Output Table for Oligos:
 
@@ -60,10 +61,10 @@ observeEvent(input$search,{
     {
       Target_Genome <- BSgenome.Drerio.UCSC.danRer11
     }
-    else if((as.character(input$Genomes) == "Rice (MSU7)") ==TRUE)
-    {
-      Target_Genome <- BSgenome.Osativa.MSU.MSU7
-    }
+    #else if((as.character(input$Genomes) == "Rice (MSU7)") ==TRUE)
+    #{
+    #  Target_Genome <- BSgenome.Osativa.MSU.MSU7
+    #}
     else if((as.character(input$Genomes) == "Common Grape (IGGP12Xv2)")==TRUE)
     {
       Target_Genome <- BSgenome.Vvinifera.URGI.IGGP12Xv2
@@ -87,11 +88,11 @@ observeEvent(input$search,{
             Chromosome <- input$Chromosome
             Chromosome2 <- input$Chromosome2
           }
-          else if(input$Genomes == "Rice (MSU7)")
-          {
-            Chromosome <- paste("chr",substring(input$Chromosome, first = 4),sep = "")
-            Chromosome2 <- paste("chr",substring(input$Chromosome2, first = 4),sep = "")
-          }
+          #else if(input$Genomes == "Rice (MSU7)")
+          #{
+          #  Chromosome <- paste("Chr",substring(input$Chromosome, first = 4),sep = "")
+          #  Chromosome2 <- paste("Chr",substring(input$Chromosome2, first = 4),sep = "")
+          #}
         
 #-----------------------------------------------------------------------------------------------------------------#
    
@@ -131,7 +132,7 @@ observeEvent(input$search,{
         if(input$SequenceInput2 == "Genomic coordinates")
         {
         
-        Seq_plus <- getSeq(Target_Genome, GRanges(Chromosome2,ranges = IRanges(start = as.numeric(input$Location)-25, width = 51),))
+        Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome2),ranges = IRanges(start = as.numeric(input$Location)-25, width = 51),))
         Seq_minus <- reverseComplement(Seq_plus)
         
         # Convert the DnaStringSets into character strings:
@@ -448,12 +449,13 @@ observeEvent(input$search,{
                       
                       Guide <- c(minus_perfecteditabledf[i,1],substr(Seq_minus_char_NGG[minus_perfecteditabledf[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf[i,2], j,j+2),"BE3 (R33A/K34A) (lower off-target editing than BE3-R33A!)")
                       tmp2 <- NULL
-                      Download <- rbind(Download,Guide[2])
                       
-                      ## T restriction for this BE as mentioned in Grunwald Nature Biotechnology, 2019
+                      
+                      ## T restriction for this BE as mentioned in Grunwald Nature, 2019
                       
                       if((substr(Guide[2],26-(18+j),26-(18+j)) == "T") == TRUE)
                       {
+                        Download <- rbind(Download,Guide[2])
 
                       for (l in 1:(nchar(minus_perfecteditabledf[1,2])-2))
                       {
@@ -558,10 +560,11 @@ observeEvent(input$search,{
                       
                       Guide <- c(plus_perfecteditabledf[i,1],substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf[i,2], j,j+2),"BE3 (R33A/K34A) (lower off-target editing than BE3-R33A!)")
                       tmp2 <- NULL
-                      Download <- rbind(Download,Guide[2])
+                      
                       
                       if((substr(Guide[2],26-(18+j),26-(18+j)) == "T") == TRUE)
                       {
+                        Download <- rbind(Download,Guide[2])
                       
                       for (l in 1:(nchar(plus_perfecteditabledf[1,2])-2))
                       {
@@ -2830,7 +2833,7 @@ observeEvent(input$search,{
                                                     'table.on("click.dt","td", function() {
                                                     var data=table.cell(this).data();
                                                     if (table.cell(this).data() > 0)
-                                                    swal({title: "Edit position", text: "Edit position is defined relative to the PAM sequence. The position in the protospacer closest to the PAM has the position +20, the furthest away position +1. (Figure modified from Gaudelli et.al., 2017)",imageUrl: "Base.jpg",imageSize: "460x200"
+                                                    swal({title: "Edit position", text: "Edit position is defined relative to the PAM sequence. The position in the protospacer closest to the PAM has the position +20, the furthest away position +1. (Gaudelli et al. 2017)",imageUrl: "Base.jpg",imageSize: "460x200"
                                                     });
                                                  })'
             
@@ -3870,7 +3873,7 @@ observeEvent(input$search,{
                                                     swal({title: "pegRNA-Score", text: "The higher the better! (calculated based on recommendation from the Liu Lab)",imageUrl: "Score.jpg",imageSize: "460x200"
                                                     });   
                                                     if (table.cell(this).data() > 0)
-                                                    swal({title: "Edit position", text:  "Edit position is defined relative to the PAM sequence (Anzalone et.al. 2019)",imageUrl: "Target.jpg",imageSize: "460x200"
+                                                    swal({title: "Edit position", text:  "Edit position is defined relative to the PAM sequence (Anzalone et al. 2019)",imageUrl: "Target.jpg",imageSize: "460x200"
                                                     });                                                    
  
                                                     })')) 
@@ -5135,7 +5138,7 @@ observeEvent(input$search,{
                                                     swal({title: "pegRNA-Score", text: "The higher the better! (calculated based on recommendation from the Liu Lab)",imageUrl: "Score.jpg",imageSize: "460x200"
                                                     });   
                                                     if (table.cell(this).data() > 0)
-                                                    swal({position: "top-end",title: "Edit position", text:  "Edit position is defined relative to the PAM sequence (Anzalone et.al. 2019)",imageUrl: "Target.jpg",imageSize: "460x200"
+                                                    swal({position: "top-end",title: "Edit position", text:  "Edit position is defined relative to the PAM sequence (Anzalone et al. 2019)",imageUrl: "Target.jpg",imageSize: "460x200"
                                                     });                                                    
  
                                                     })'))
@@ -5436,8 +5439,7 @@ observeEvent(input$search,{
         
         withProgress(message = 'Generating Oligos', value = 0, {
         
-        if(input$Editing == "Base editing")
-        {
+        if(input$Editing == "Base editing") {
           
           guides <- NULL
           
@@ -5459,21 +5461,21 @@ observeEvent(input$search,{
             if(input$Genomes != "Rice (MSU7)")
             {
               
-              Chromosome <- as.character(paste("chr",inFile[k,]$Chromosome, sep = ""))
+              Chromosome2 <- as.character(paste("chr",inFile[k,]$Chromosome, sep = ""))
                                             
               
             }
-            else if(input$Genomes == "Rice (MSU7)")
-            {
-              
-              Chromosome <- as.character(paste("Chr",inFile[k,]$Chromosome, sep = ""))
-              
-            }
+            #else if(input$Genomes == "Rice (MSU7)")
+            #{
+            #  
+            #  Chromosome2 <- as.character(paste("Chr",inFile[k,]$Chromosome, sep = ""))
+            #  
+            #}
             
           
           ### Get sequence for Plus Strand
           
-          Seq_plus <- getSeq(Target_Genome, GRanges(Chromosome,ranges = IRanges(start = c(as.numeric(inFile[k,]$GenomicLocation)-25), width = 51)),)
+          Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome2),ranges = IRanges(start = c(as.numeric(inFile[k,]$GenomicLocation)-25), width = 51)),)
           
           ### Get Sequence for Minus Strand
           
@@ -5788,14 +5790,14 @@ observeEvent(input$search,{
                         # Guide vector is created with the guide number, Protospacer sequence, Edit position, PAM sequence, Base editor
                         # Resulting vectors are combined to create 'guides'
                         
-                        Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char_NGG[minus_perfecteditabledf[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf[i,2], j,j+2),"BE3 (R33A/K34A) (lower off-target editing than BE3-R33A!)",inFile[k,]$Variant)
+                        Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char_NGG[minus_perfecteditabledf[i,1]],20+j,39+j),26-(19+j),substr(minus_perfecteditabledf[i,2], j,j+2),"BE3 (R33A/K34A) (lower off-targets than BE3 (R33A))",inFile[k,]$Variant)
                         tmp2 <- NULL
-                        Download <- rbind(Download,Guide[2])
                         
-                        ## T restriction for this BE as mentioned in Grunwald Nature Biotechnology, 2019
+                        ## T restriction for this BE as mentioned in Grunwald Nature, 2019
                         
                         if((substr(Guide[2],26-(18+j),26-(18+j)) == "T") == TRUE)
                         {
+                          Download <- rbind(Download,Guide[2])
                           
                           for (l in 1:(nchar(minus_perfecteditabledf[1,2])-2))
                           {
@@ -5900,12 +5902,13 @@ observeEvent(input$search,{
                     {
                       if (grepl( "AGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(plus_perfecteditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(plus_perfecteditabledf[i,2], j,j+2)) == TRUE ){
                         
-                        Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf[i,2], j,j+2),"BE3 (R33A/K34A) (lower off-target editing than BE3-R33A!)",inFile[k,]$Variant)
+                        Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char_NGG[plus_perfecteditabledf[i,1]],20+j,39+j),26-(19+j),substr(plus_perfecteditabledf[i,2], j,j+2),"BE3 (R33A/K34A) (lower off-targets than BE3 (R33A))",inFile[k,]$Variant)
                         tmp2 <- NULL
-                        Download <- rbind(Download,Guide[2])
+                        
                         
                         if((substr(Guide[2],26-(18+j),26-(18+j)) == "T") == TRUE)
                         {
+                          Download <- rbind(Download,Guide[2])
                           
                           for (l in 1:(nchar(plus_perfecteditabledf[1,2])-2))
                           {
@@ -5947,7 +5950,7 @@ observeEvent(input$search,{
                           guides <- rbind(guides,Guide)
                           
                         }
-                        else{ a <- NULL}
+                        else{a <- NULL}
                       }
                     }
                   }
@@ -8313,16 +8316,12 @@ observeEvent(input$search,{
           
           output$myText <- renderText({
 
-            
-            total <- data.frame(inFile$Variant)
             targetable <- data.frame("Baseeditor" = guides[,5], "Variant" = guides[,6], stringsAsFactors = FALSE)
             targetable <- subset(targetable, nchar(targetable$Baseeditor) > 3)
             targetable <- data.frame(unique(targetable$Variant))
             
-            
             x <- nrow(targetable)
-            y <- nrow(total)
-            
+            y <- length(unique(inFile$Variant))
             
             paste(x, "out of", y, "Variants could be targeted")
             
@@ -8332,15 +8331,14 @@ observeEvent(input$search,{
 
         }
         
-        else if (input$Editing == "Prime editing") 
-        {
+        else if (input$Editing == "Prime editing") {
           
           output$downloadData4 <- downloadHandler(
             filename = function() {
               paste('pegRNA oligos for cloning-', Sys.Date(), '.csv', sep='')
             },
             content = function(con) {
-              write.csv(data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "EditPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), "PBS" =  inFile[as.numeric(guides[,1]),]$PBS, "RTT" = inFile[as.numeric(guides[,1]),]$RTT, stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
+              write.csv(subset(out <- data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = paste("cacc", guides[,2],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guides[,2])),sep = "") , "EditPos." = guides[,3], "Extension(Sense)" = paste("gtgc",guides[,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guides[,4])), sep = ""), "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), "PBS" =  inFile[as.numeric(guides[,1]),]$PBS, "RTT" = inFile[as.numeric(guides[,1]),]$RTT, stringsAsFactors = FALSE), out$Score > -999), con, sep = ",", row.names=FALSE)
             }
           )
           
@@ -8349,7 +8347,7 @@ observeEvent(input$search,{
               paste('Nicking guides-',Sys.Date(), '.csv', sep='')
             },
             content = function(con) {
-              write.csv(data.frame("Variant" = currentnickingguidesdf_all[,1], "Protospacer Sense" = paste("cacc",currentnickingguidesdf_all[,2], sep = ""), "Protospacer Antisense" = paste("aaac",as.character(reverseComplement(DNAStringSet(currentnickingguidesdf_all[,2]))),sep = ""), "PAM" = currentnickingguidesdf_all[,4],"DistfromInititalNick" = currentnickingguidesdf_all[,3], "System" = currentnickingguidesdf_all[,6]), con, sep = ",", row.names=FALSE)
+              write.csv(data.frame("Variant" = currentnickingguidesdf_all[,1], "Protospacer PE2" = currentnickingguidesdf_all[,2], "Protospacer Sense" = paste("cacc",currentnickingguidesdf_all[,3], sep = ""), "Protospacer Antisense" = paste("aaac",as.character(reverseComplement(DNAStringSet(currentnickingguidesdf_all[,3]))),sep = ""), "PAM" = currentnickingguidesdf_all[,5],"DistfromInititalNick" = currentnickingguidesdf_all[,4], "System" = currentnickingguidesdf_all[,7]), con, sep = ",", row.names=FALSE)
             }
           )
           
@@ -8381,12 +8379,13 @@ observeEvent(input$search,{
               
               
             }
-            else if(input$Genomes == "Rice (MSU7)")
-            {
-              
-              Chromosome <- as.character(paste("Chr",inFile[k,]$Chromosome, sep = ""))
-              
-            }
+            #else if(input$Genomes == "Rice (MSU7)")
+            #{
+            #  
+            #  Chromosome <- as.character(paste("Chr",inFile[k,]$Chromosome, sep = ""))
+            #  
+            #  
+            #}
             
             inFile$RT <- inFile$RTT
             
@@ -8404,14 +8403,14 @@ observeEvent(input$search,{
 
             if((inFile[k,]$GeneOrientation == "-")== TRUE)
             {
+            
               
-              if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(paste("chr",inFile[k,]$Chromosome, sep = "")),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)+as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)))[c(as.character(Chromosome))])) != TRUE)
+              if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)+as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)))[c(as.character(Chromosome))])) != TRUE)
               {
                 
               ### Get sequence for Plus Strand
-                
               
-              Seq_plus <- getSeq(Target_Genome, GRanges(as.character(paste("chr",inFile[k,]$Chromosome, sep = "")),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)+as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)),)
+              Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)+as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)),)
               
               ### Get Sequence for Minus Strand
               
@@ -8760,11 +8759,11 @@ observeEvent(input$search,{
             if((inFile[k,]$GeneOrientation == "+") == TRUE)
             {
               
-              if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(paste("chr",inFile[k,]$Chromosome, sep = "")),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)+as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)))[c(as.character(Chromosome))])) != TRUE)
+              if(is.na(seqlengths(checkCompatibleSeqinfo(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)+as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)))[c(as.character(Chromosome))])) != TRUE)
               {
               ### Get sequence for Plus Strand
               
-              Seq_plus <- getSeq(Target_Genome, GRanges(as.character(paste("chr",inFile[k,]$Chromosome, sep = "")),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)-as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)),)
+              Seq_plus <- getSeq(Target_Genome, GRanges(as.character(Chromosome),ranges = IRanges(start = as.numeric(inFile[k,]$GenomicLocation)-as.numeric(paste(inFile[k,]$GeneOrientation,as.character(edit.pos), sep = "")), width = search.width)),)
               
               ### Get Sequence for Minus Strand
               
@@ -8783,7 +8782,6 @@ observeEvent(input$search,{
                 DNAchange <- DNAStringSet(substring(inFile[k,]$Edit, first = 4))
                 anti_DNAchange <- complement(DNAchange)
                 
-                
                 DNAchange_char <- as.character(DNAchange)
                 
                 DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", DNAchange_char,.noWS = "outside"),.noWS = "outside")
@@ -8799,9 +8797,21 @@ observeEvent(input$search,{
                 
                 x <- as.numeric(x)
                 
+                if(inFile[k,]$Edit == "Correct_Mutation")
+                {
+                  Seq_plus_char_n <- Seq_plus_char
+                  Seq_minus_rev_char_n <- Seq_minus_rev_char
+                  
+                  Seq_plus_char <- paste(substr(Seq_plus_char, start = 1, stop = edit.pos),as.character(DNAchange), substr(Seq_plus_char, start = edit.pos+1, stop = search.width), sep = "")
+                  Seq_minus_rev_char <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_minus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
+                  
+                }
+                else{
+                  
                 Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = edit.pos),as.character(DNAchange), substr(Seq_plus_char, start = edit.pos+1, stop = search.width), sep = "")
                 Seq_minus_rev_char_n <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_minus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
                 
+                }
               }
               else if ((substr(inFile[k,]$Edit,1,3) == "del")==TRUE){
                 
@@ -8828,6 +8838,20 @@ observeEvent(input$search,{
                 
                 q <- 1
                 
+                if(inFile[k,]$Edit == "Correct_Mutation")
+                { 
+                  
+                  Seq_plus_char_n <-Seq_plus_char
+                  Seq_minus_rev_char_n <- Seq_minus_rev_char
+                
+                  
+                  Seq_plus_char <- paste(substr(Seq_plus_char, start = 1, stop = edit.pos), substr(Seq_plus_char, start = edit.pos+1+z, stop = search.width), sep = "")
+                  
+                  Seq_minus_rev_char <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos), substr(Seq_minus_rev_char, start = edit.pos+1+z, stop = search.width), sep = "")
+                  
+                }
+                else{
+                
                 
                 if(((substr(Seq_plus, start = edit.pos+1, stop = edit.pos+z)) == (as.character(DNAchange)))==TRUE){
                   
@@ -8844,7 +8868,7 @@ observeEvent(input$search,{
                   next
                   
                 }
-                
+                }
                 
               }
               else if(grepl(">", inFile[k,]$Edit) == TRUE) { 
@@ -8866,6 +8890,24 @@ observeEvent(input$search,{
                 
                 anti_DNAchange_char_tagged <- tags$strong(tags$span(style="color:red", anti_DNAchange_char,.noWS = "outside"),.noWS = "outside")
  
+                if(inFile[k,]$Edit == "Correct_Mutation")
+                {
+                  Seq_plus_char_n <-Seq_plus_char
+                  Seq_plus_char_n2 <- Seq_plus_char
+                  Seq_minus_rev_char_n <- Seq_minus_rev_char
+                  Seq_minus_rev_char_n2 <- Seq_minus_rev_char
+                  
+                  substr(Seq_plus_char_n2, start = edit.pos+1, stop = edit.pos+y) <- as.character(DNAchange)
+                  
+                  Seq_plus_char <- Seq_plus_char_n2
+                  
+                  substr(Seq_minus_rev_char_n2, start = edit.pos+1, stop = edit.pos+y) <- as.character(anti_DNAchange)
+                  
+                  Seq_minus_rev_char <- Seq_minus_rev_char_n2
+                  
+                }
+                else{
+                  
                 if ((substr(inFile[k,]$Edit,0,y) == substr(Seq_plus, start = edit.pos+1, stop = edit.pos+y)) == TRUE ){
                   
                   Seq_plus_char_n <- Seq_plus_char
@@ -8880,6 +8922,7 @@ observeEvent(input$search,{
                   NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAA","no PAM","CHECK SUB!",-999,"")
                   guides <- rbind(guides, NoGuide)
                   next
+                }
                 }
               }
               
@@ -8917,7 +8960,7 @@ observeEvent(input$search,{
               primeeditabledf$X2 <- as.character(primeeditabledf$X2)
               primeeditabledf$X1 <- as.numeric(primeeditabledf$X1)
 
-              ## AntiSense strand
+              ## Antisense strand
               
               primeeditable2 <- NULL;
               
@@ -9011,7 +9054,7 @@ observeEvent(input$search,{
               
               if(is.null(primeeditable2) != TRUE){
                 
-                ## AntiSense strand
+                ## Antisense strand
                 
                 for (i in 1:nrow(primeeditable2df))
                   for (j in 1:(nchar(primeeditable2df[1,2])-2))
@@ -9118,37 +9161,36 @@ observeEvent(input$search,{
             
           }
 
-            
-              
+          
               currentguidesdf <- reactive({ 
                 
               if ((input$expert != 1) == TRUE) {
               
-              guidesdf <- data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(coding strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
+              guidesdf <- data.frame("Variant" = paste(inFile[as.numeric(guides[,1]),]$Variant,"_","PBS: ",inFile[as.numeric(guides[,1]),]$PBS,"RTT: ",inFile[as.numeric(guides[,1]),]$RTT), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(coding strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
               
               df.agg <- aggregate(Score ~ Variant, guidesdf, max)
               guidesdf$id  <- 1:nrow(guidesdf)
               df.max <- join(df.agg, guidesdf)
               df.max <- df.max[!duplicated(df.max[,"Variant"]),]
-              df.max[order(df.max$id), ]
+              df.max <- df.max[order(df.max$id), ]
               df.max <- df.max[,1:8]
               
               }else {
                 
-                guidesdf <- subset(data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(Sense)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE), guides[,6] != "Edit too far away, try to increase the RT length!")
+                guidesdf <- subset(data.frame("Variant" = paste(inFile[as.numeric(guides[,1]),]$Variant,"_","PBS: ",inFile[as.numeric(guides[,1]),]$PBS,"RTT: ",inFile[as.numeric(guides[,1]),]$RTT), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(Sense)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE), guides[,6] != "Edit too far away, try to increase the RT length!")
               
                 
               }
               
               })
               
-              guidesdf2 <- data.frame("Variant" = inFile[as.numeric(guides[,1]),]$Variant, "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(coding strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
+              guidesdf2 <- data.frame("Variant" = paste(inFile[as.numeric(guides[,1]),]$Variant,"_","PBS: ",inFile[as.numeric(guides[,1]),]$PBS,"RTT: ",inFile[as.numeric(guides[,1]),]$RTT), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(coding strand)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE)
             
               df.agg <- aggregate(Score ~ Variant, guidesdf2, max)
               guidesdf2$id  <- 1:nrow(guidesdf2)
               df.max <- join(df.agg, guidesdf2)
               df.max <- df.max[!duplicated(df.max[,"Variant"]),]
-              df.max[order(df.max$id), ]
+              df.max <- subset(df.max, df.max$Score > -999)
               guidesdf_max_ordered <- df.max[order(df.max$id), ]
               
               SelectedpegRNA <- guidesdf_max_ordered
@@ -9276,13 +9318,13 @@ observeEvent(input$search,{
                 {
                 if ((SelectedpegRNA[k,8] == "Sense") == TRUE) {
                   
-                  currentnickingguidesdf <- data.frame("Variant" = SelectedpegRNA[k,1],"Protospacer" = nickingguidesforSense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,3])+as.numeric(guidesdf_max_ordered[k,5])), "PAM" = nickingguidesforSense[,4], "PAM-Strand" = nickingguidesforSense[,5], "System" = nickingguidesforSense[,6],  stringsAsFactors = FALSE)
+                  currentnickingguidesdf <- data.frame("Variant" = SelectedpegRNA[k,1],"Protospacer_PE2" = SelectedpegRNA[k,3],"Protospacer" = nickingguidesforSense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,3])+as.numeric(guidesdf_max_ordered[k,5])), "PAM" = nickingguidesforSense[,4], "PAM-Strand" = nickingguidesforSense[,5], "System" = nickingguidesforSense[,6],  stringsAsFactors = FALSE)
                   currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
                   currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
                   
                   currentnickingguidesdf3 <- NULL
 
-                  if(any(as.numeric(guidesdf_max_ordered[k,5]) - currentnickingguidesdf[,3]) < 18)
+                  if(any(as.numeric(guidesdf_max_ordered[k,5]) - currentnickingguidesdf[,4]) < 18)
                   {
                     # Check if the edited is included in the nicking guide protospacer
                     currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_max_ordered[k,5])),]
@@ -9300,13 +9342,13 @@ observeEvent(input$search,{
                 }
                 else if ((SelectedpegRNA[k,8] == "Antisense") == TRUE) {
                   
-                  currentnickingguidesdf <- data.frame("Variant" = SelectedpegRNA[k,1],"Protospacer" = nickingguidesforAntisense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,3])+as.numeric(guidesdf_max_ordered[k,5])), "PAM" = nickingguidesforAntisense[,4], "PAM-Strand" = nickingguidesforAntisense[,5],"System" = nickingguidesforAntisense[,6], stringsAsFactors = FALSE)
+                  currentnickingguidesdf <- data.frame("Variant" = SelectedpegRNA[k,1],"Protospacer_PE2" = SelectedpegRNA[k,3],"Protospacer" = nickingguidesforAntisense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,3])+as.numeric(guidesdf_max_ordered[k,5])), "PAM" = nickingguidesforAntisense[,4], "PAM-Strand" = nickingguidesforAntisense[,5],"System" = nickingguidesforAntisense[,6], stringsAsFactors = FALSE)
                   currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
                   currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
                   
                   currentnickingguidesdf3 <- NULL
                   
-                  if(any(as.numeric(guidesdf_max_ordered[k,5]) - currentnickingguidesdf[,3]) < 18)
+                  if(any(as.numeric(guidesdf_max_ordered[k,5]) - currentnickingguidesdf[,4]) < 18)
                   {
                     # Check if the edited is included in the nicking guide protospacer
                     currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_max_ordered[k,5])),]
@@ -9349,7 +9391,7 @@ observeEvent(input$search,{
                                                     swal({title: "pegRNA-Score", text: "The higher the better! (calculated based on recommendation from the Liu Lab)",imageUrl: "Score.jpg",imageSize: "460x200"
                                                     });   
                                                     if (table.cell(this).data() > 0)
-                                                    swal({title: "Edit position", text:  "Edit position is defined relative to the PAM sequence (Anzalone et.al. 2019)",imageUrl: "Target.jpg",imageSize: "460x200"
+                                                    swal({title: "Edit position", text:  "Edit position is defined relative to the PAM sequence (Anzalone et al. 2019)",imageUrl: "Target.jpg",imageSize: "460x200"
                                                     });                                                    
  
                                                     })'
@@ -9365,10 +9407,10 @@ observeEvent(input$search,{
             guidesdf$id  <- 1:nrow(guidesdf)
             df.max <- join(df.agg, guidesdf)
             df.max <- df.max[!duplicated(df.max[,"Variant"]),]
-            df.max[order(df.max$id), ]
+            #df.max[order(df.max$id), ]
             
             x <- nrow(subset(df.max, as.numeric(df.max$Score) > -999))
-            y <- nrow(inFile)
+            y <- length(unique(inFile$Variant))
             
             
             paste(x, "out of", y, "Variants could be targeted")
@@ -9378,9 +9420,7 @@ observeEvent(input$search,{
           
           
         }
-        
-        
-            
+    
       }) 
       
         
