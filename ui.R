@@ -213,7 +213,7 @@ shinyUI(
           hr(),
           absolutePanel(
             left = "10%",
-            sidebarLayout("Questions regarding PnB Designer?" ,tags$a(href="mailto:pngdesigner@gmail.com", target='blank', 'Contact us', link = 'pngdesigner@gmail.com'),)
+            sidebarLayout("Questions regarding PnB Designer?" ,tags$a(href="mailto:pnbdesigner@gmail.com", target='blank', 'Contact us', link = 'pngdesigner@gmail.com'),)
           ),
           br()
           
