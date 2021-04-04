@@ -2901,6 +2901,11 @@ observeEvent(input$search,{
         q <- 0
         r <- 0
         f <- 1
+        g <- 0
+        t <- 0
+        pe3b_ins <- 0
+        pe3_ins <- 0
+        pe3b_minus_sub <- 0
         del_plus <- 0
         del_minus <- 0
         del_minus_edit <- 0
@@ -3015,6 +3020,8 @@ observeEvent(input$search,{
               
               p <- 1
               
+              del_minus_edit <- u
+              
               Seq_plus_rev_char_n <- paste(substr(Seq_plus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_plus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
               Seq_minus_char_n <- paste(substr(Seq_minus_char, start = 1, stop = edit.pos),as.character(DNAchange), substr(Seq_minus_char, start = edit.pos+1, stop = search.width), sep = "")
               
@@ -3113,6 +3120,7 @@ observeEvent(input$search,{
               
               y <- ((nchar(as.character(input$Mutation)))-1)/2
               n <- y-1
+              pe3b_minus_sub <- n
               v <- 1
               
               DNAchange_mut <- DNAStringSet(substr(input$Mutation,2+y,2+(y*2)))
@@ -3222,7 +3230,7 @@ observeEvent(input$search,{
                 
             # Guide sequences are designed based on the position of the PAM sequence in the 'primeeditable' object:
                 
-                ## Designing pegRNAs on the Antisense strand
+            ## Designing pegRNAs on the Antisense strand
 
               for (i in 1:nrow(primeeditabledf))
                 for (j in 1:(nchar(primeeditabledf[1,2])-2))
@@ -3257,14 +3265,14 @@ observeEvent(input$search,{
                           
                         }
                         
-                        if ((grepl("TTTTT", Guide[4])) == TRUE)
+                        if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE)
                         {                          
                           
                           Guide[7] <- as.numeric(Guide[7])-50
                           
                         }
                         
-                        if (((((as.numeric(input$RT))) - ((as.numeric(Guide[3])))) > 4) != TRUE) 
+                        if ((((as.numeric(input$RT)) - (as.numeric(Guide[3])+del_minus+n)) < 5) == TRUE) 
                         {
                           
                         Guide[7] <- as.numeric(Guide[7])-6
@@ -3320,13 +3328,13 @@ observeEvent(input$search,{
                             Guide[7] <- as.numeric(Guide[7])-28
                             
                           }
-                          if ((grepl("TTTTT", Guide[4])) == TRUE){
+                          if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                             
                             Guide[7] <- as.numeric(Guide[7])-50
                             
                           }
                           
-                          if (((((as.numeric(input$RT))) - ((as.numeric(Guide[3])))) > 4) != TRUE) 
+                          if ((((as.numeric(input$RT)) - (as.numeric(Guide[3])+del_minus-p+n)) < 5) == TRUE) 
                           {
                             
                             Guide[7] <- as.numeric(Guide[7])-6
@@ -3362,9 +3370,11 @@ observeEvent(input$search,{
                 }
                 
                 
-                if(any((as.numeric(guides[,3])+p+z+n) <= input$RT))
+                if(any((as.numeric(guides[,3])+p+z+n) <= input$RT & (as.numeric(guides[,3])-z) > 0) == TRUE)
                 {
                   guides <- subset(guides, as.numeric(guides[,3])+p+z+n <= input$RT)
+                  guides <- subset(guides, as.numeric(guides[,3])-z > 0)
+                  
                   
                 }else{
                   
@@ -3372,18 +3382,7 @@ observeEvent(input$search,{
                   c <- NULL
                   
                 }
-                
-                if(any((as.numeric(guides[,3])-u-z-n) >= 0))
-                {
-                  guides <- subset(guides, as.numeric(guides[,3])-u-z-n >= 0)
-                  
-                }else{
-                  
-                  d <- NULL
-                  c <- NULL
-                  
-                }
-                
+
                 if(is.null(c) | is.null(d) != TRUE)
                 {
                   currentguidesdf <- reactive({ 
@@ -3466,6 +3465,8 @@ observeEvent(input$search,{
               
               x <- as.numeric(x)
               
+              p <- 1
+              
               Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = edit.pos),as.character(DNAchange), substr(Seq_plus_char, start = edit.pos+1, stop = search.width), sep = "")
               Seq_minus_rev_char_n <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_minus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
               
@@ -3497,6 +3498,8 @@ observeEvent(input$search,{
                 
                 del_plus <- x*(-1)
                 
+                q <- 1
+                
               }
               
               # if deletion should be checked while running
@@ -3522,6 +3525,8 @@ observeEvent(input$search,{
                 
                 del_plus <- x*(-1)
                 
+                q <- 1
+                
               }
               
 
@@ -3541,9 +3546,7 @@ observeEvent(input$search,{
               
             }
             else if(grepl(">", input$Mutation) == TRUE) { 
-              
-              x <- 0
-              y <- 0
+
               y <- ((nchar(input$Mutation))-1)/2
               v <- 1
               n <- y-1
@@ -3673,13 +3676,13 @@ observeEvent(input$search,{
                           Guide[7] <- as.numeric(Guide[7])-28
                           
                         }
-                        if ((grepl("TTTTT", Guide[4])) == TRUE){
+                        if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                           
                           Guide[7] <- as.numeric(Guide[7])-50
                           
                         }
                         
-                        if (((((as.numeric(input$RT)-z+1)) - ((as.numeric(Guide[3])))) > 4) != TRUE) 
+                        if ((((as.numeric(input$RT)-z+1) - (as.numeric(Guide[3])+n+v)) < 5) == TRUE) 
                         {
                           
                           Guide[7] <- as.numeric(Guide[7])-6 
@@ -3742,13 +3745,13 @@ observeEvent(input$search,{
                           
                         }
                         
-                        if ((grepl("TTTTT", Guide[4])) == TRUE){
+                        if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                           
                           Guide[7] <- as.numeric(Guide[7])-50
                           
                         }
                         
-                        if (((((as.numeric(input$RT)-z)) - ((as.numeric(Guide[3])))) >= 4) != TRUE) 
+                        if ((((as.numeric(input$RT)-z) - (as.numeric(Guide[3])+n-q-p)) < 5) == TRUE) 
                         {
                           
                           Guide[7] <- as.numeric(Guide[7])-6 
@@ -3781,10 +3784,10 @@ observeEvent(input$search,{
             if (is.null(guides)!= TRUE)
             {
               
-              if(any(as.numeric(guides[,3])+z+n <= input$RT) == TRUE)
+              if(any(as.numeric(guides[,3])+z+n <= input$RT & (as.numeric(guides[,3])-y >= 0)) == TRUE)
               {
                 guides <- subset(guides, as.numeric(guides[,3])+z+n <= input$RT)
-                guides <- subset(guides, as.numeric(guides[,3])-y-n-v >= 0)
+                guides <- subset(guides, as.numeric(guides[,3])-y >= 0)
                 
               }else{
                 
@@ -3849,7 +3852,7 @@ observeEvent(input$search,{
             
             output$myText <- renderText({
               
-              "Edit is to far away, try to increase the RT length"
+              "Edit is to far away, try to increase the RTT length"
             })
           }
           else if(is.null(guides) == TRUE){
@@ -4023,7 +4026,7 @@ observeEvent(input$search,{
               {
                 if(nchar(substr(Seq_minus_char,j-20,j-1)) == 20){
                   
-                  PE3b_nickingGuideS <- c(substr(Seq_minus_char,j-20,j-1),154-j-v+del_minus,substr(PE3b_nickforSensePAM,j,j+2),"Antisense","PE3b")
+                  PE3b_nickingGuideS <- c(substr(Seq_minus_char,j-20,j-1),154-j-v+del_minus+pe3b_minus_sub,substr(PE3b_nickforSensePAM,j,j+2),"Antisense","PE3b")
                  
                   if(substr(PE3b_nickingGuideS[1],1,1) != "G")
                   {
@@ -4049,10 +4052,12 @@ observeEvent(input$search,{
                 currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforSense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,2])+as.numeric(guidesdf_ordered[f,5])+v), "PAM" = nickingguidesforSense[,3], "PAM-Strand" = nickingguidesforSense[,4], "System" = nickingguidesforSense[,5],  stringsAsFactors = FALSE)
                 currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
                 currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
-
-                 currentnickingguidesdf3 <- NULL
+                currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
                 
-                 if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
+                currentnickingguidesdf3 <- NULL
+                
+                 if((any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18))
                  {
                    # Check if the edited is included in the nicking guide protospacer
                    currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
@@ -4061,9 +4066,6 @@ observeEvent(input$search,{
                    # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                    currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
                    
-                   # Change minus for PE3b
-                   currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
-                   
                  }
  
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
@@ -4071,22 +4073,25 @@ observeEvent(input$search,{
               }
               else if (isTruthy(SelectedpegRNA[f,8] == "Antisense")) {
                 
-                currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])+v), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
+                currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])+v+u), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
+                
+                # Change minus for PE3
+                currentnickingguidesdf$DistfromInitialNick <- currentnickingguidesdf$DistfromInitialNick*(-1)
+                
                 currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
                 currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+                currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
                 
                 currentnickingguidesdf3 <- NULL
                 
-                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
+                if(any((as.numeric(guidesdf_ordered[f,5])+u+n) - currentnickingguidesdf[,2]) < 18)
                 {
                   # Check if the edited is included in the nicking guide protospacer
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 16 & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) > (-7)),]
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
-                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
-
-                  # Change minus for PE3b
-                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which((currentnickingguidesdf3$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 34 & currentnickingguidesdf3$DistfromInitialNick > (-11)),]
                   
                 }
                 
@@ -4102,6 +4107,105 @@ observeEvent(input$search,{
             )
 
           }
+          
+          ## Download Button for selected download
+          
+          output$downloadData <- downloadHandler(
+            filename = function() {
+              paste('pegRNA Oligos for cloning-',input$Variant, "-", Sys.Date(), '.csv', sep='')
+            },
+            content = function(con) {
+              
+              f = input$mytable_rows_selected
+              
+              l <- NULL
+              
+              l = input$nickingguides_rows_selected
+              
+              if(is.null(l) != TRUE)
+              {
+                ## Generation of currentnickingguides data frames for selected download of pegRNAs
+                
+                if (isTruthy(SelectedpegRNA[f,8] == "Sense")) {
+                  
+                  currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforSense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,2])+as.numeric(guidesdf_ordered[f,5])+v), "PAM" = nickingguidesforSense[,3], "PAM-Strand" = nickingguidesforSense[,4], "System" = nickingguidesforSense[,5],  stringsAsFactors = FALSE)
+                  currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+                  currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+                  currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                  currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
+                  
+                  currentnickingguidesdf3 <- NULL
+                  
+                  if(any((as.numeric(guidesdf_ordered[f,5])+v) - (currentnickingguidesdf[,2])+u) < 18)
+                  {
+                    # Check if the edited is included in the nicking guide protospacer
+                    currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-(as.numeric(guidesdf_ordered[f,5])+u+v)),]
+                    
+                    # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
+                    currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick-u > -16 & currentnickingguidesdf3$DistfromInitialNick+u < 11),]
+                    
+                    
+                  }
+                  
+                  currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
+                  
+                }
+                else if (isTruthy(SelectedpegRNA[f,8] == "Antisense")) {
+                  
+                  currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])+u+v), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
+                  
+                  # Change minus for PE3
+                  currentnickingguidesdf$DistfromInitialNick <- currentnickingguidesdf$DistfromInitialNick*(-1)
+                  
+                  currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+                  currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+                  currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                  currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
+                  
+                  currentnickingguidesdf3 <- NULL
+                  
+                  if(any((as.numeric(guidesdf_ordered[f,5])+u+n) - currentnickingguidesdf[,2]) < 18)
+                  {
+                    # Check if the edited is included in the nicking guide protospacer
+                    currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 16 & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) > (-7)),]
+                    
+                    # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
+                    currentnickingguidesdf3 <- currentnickingguidesdf3[which((currentnickingguidesdf3$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 34 & currentnickingguidesdf3$DistfromInitialNick > (-11)),]
+                    
+                    # Change minus for PE3b
+                    currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick-n*(-1)
+                    
+                  }
+                  
+                  currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
+                  
+                }
+                
+                #write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guidesdf_ordered[f,2]), "Protospacer(Sense)" = paste("cacc", guidesdf_ordered[f,3],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guidesdf_ordered[f,3])),sep = "") , "TargetPos." = guidesdf_ordered[f,2], "Extension(Sense)" = paste("gtgc",guidesdf_ordered[f,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guidesdf_ordered[f,4])), sep = ""), "PAM" = guidesdf_ordered[f,5], "PAM-Strand" = guidesdf_ordered[f,6], "PBS" = input$PBS, "RTT" = input$RT,"Nicking guide Protospacer" = nicksfordownload[l,1], stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
+                write.csv(data.frame(guidesdf_ordered[f,],"Nicking guide Protospacer Sense" = paste("cacc",currentnickingguidesdf[l,1], sep = ""),"Nicking guide Protospacer Antisense" = paste("aaac",as.character(reverseComplement(DNAStringSet(currentnickingguidesdf[l,1]))), sep = ""), "Distance from initial nicking site" = currentnickingguidesdf[l,2],"System" = currentnickingguidesdf[l,5], stringsAsFactors = FALSE), con, sep = ",", row.names = FALSE)
+                
+              }else if (is.null(l) == TRUE){
+                
+                #write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guidesdf_ordered[f,2]), "Protospacer(Sense)" = paste("cacc", guidesdf_ordered[f,3],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guidesdf_ordered[f,3])),sep = "") , "TargetPos." = guidesdf_ordered[f,2], "Extension(Sense)" = paste("gtgc",guidesdf_ordered[f,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guidesdf_ordered[f,4])), sep = ""), "PAM" = guidesdf_ordered[f,5], "PAM-Strand" = guidesdf_ordered[f,6], "PBS" = input$PBS, "RTT" = input$RT, stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
+                write.csv(data.frame(guidesdf_ordered[f,]), con, sep = ",", row.names = FALSE)
+                
+              }
+            }
+          )
+          
+          ## Download Button for all pegRNAs
+          
+          
+          output$downloadData2 <- downloadHandler(
+            filename = function() {
+              paste('pegRNA Oligos for cloning-',input$Variant, "-", Sys.Date(), '.csv', sep='')
+            },
+            content = function(con) {
+              
+              write.csv(data.frame(guidesdf_ordered[,]), con, sep = ",", row.names = FALSE)
+              
+            }
+          )
           
         }
        
@@ -4230,6 +4334,10 @@ observeEvent(input$search,{
               
               q <- 1
               
+              del_minus_edit <- z-1
+              
+              m <- z -1
+              
             }
             
             # if deletion should be checked while running
@@ -4253,6 +4361,8 @@ observeEvent(input$search,{
               x <- nchar(as.character(DNAchange))
               
               x <- as.numeric(x)* (-1)  
+              
+              m <- z -1
               
               q <- 1
               
@@ -4282,6 +4392,7 @@ observeEvent(input$search,{
             y <- ((nchar(as.character(input$Edit)))-1)/2
             v <- 1
             n <- y-1
+            t <- n
             
             
             DNAchange <- DNAStringSet(substr(as.character(input$Edit),2+y,2+(y*2)))
@@ -4318,7 +4429,7 @@ observeEvent(input$search,{
 
           ## Upstream PAM for PRIME 
           
-          primeUpstreamPAM <- substr(Seq_minus_char, 56,edit.pos+6)  
+          primeUpstreamPAM <- substr(Seq_minus_char, 56+p,edit.pos+6+p)  
           
           primeUpstreamPAM2 <- substr(Seq_plus_rev_char,edit.pos-4,246)
           
@@ -4379,12 +4490,12 @@ observeEvent(input$search,{
                 {
                   if (grepl( "AGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(primeeditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE ){
 
-                    if(nchar(substr(Seq_minus_char[primeeditabledf[i,1]],(j+35),j+54)) == 20)
+                    if(nchar(substr(Seq_minus_char[primeeditabledf[i,1]],(j+35+p),j+54+p)) == 20)
                     {
                       
-                      Guide <- c("1",substr(Seq_minus_char[primeeditabledf[i,1]],j+35,j+54),100-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char_n[primeeditabledf[i,1]],(j+52) - as.numeric(input$PBS),((j+52) - (as.numeric(input$PBS)))+ (as.numeric(input$RT)+as.numeric(input$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Antisense")
+                      Guide <- c("1",substr(Seq_minus_char[primeeditabledf[i,1]],j+35+p,j+54+p),100-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char_n[primeeditabledf[i,1]],(j+52+p) - as.numeric(input$PBS),((j+52) - (as.numeric(input$PBS)))+ (as.numeric(input$RT)+as.numeric(input$PBS)-1+p))))),substr(primeeditabledf[i,2], j,j+2), "Antisense")
                       
-                      if(substr(Seq_minus_char[primeeditabledf[i,1]],j+35,j+35) != "G")
+                      if(substr(Seq_minus_char[primeeditabledf[i,1]],j+35+p,j+35+p) != "G")
                       {
                         
                         Guide[2] <- paste("g",Guide[2], sep = "") 
@@ -4399,13 +4510,13 @@ observeEvent(input$search,{
                         
                       }
                       
-                      if ((grepl("TTTTT", Guide[4])) == TRUE){
+                      if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                         
                         Guide[7] <- as.numeric(Guide[7])-50
                         
                       }
                       
-                      if (((as.numeric(input$RT) - (as.numeric(Guide[3])+y-x)) >= 4) != TRUE) 
+                      if (((as.numeric(input$RT) - (as.numeric(Guide[3])+n-q+u)) < 5) == TRUE) 
                       {
                         
                         Guide[7] <- as.numeric(Guide[7])-6
@@ -4417,7 +4528,7 @@ observeEvent(input$search,{
                       
                       ## Add Guide[8] with the html tagged edit in red and bold on the coding strand
                       
-                      Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 1+q+y-n+((as.numeric(input$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,as.numeric(input$RT)-((as.numeric(Guide[3])+u-q+n))))), sep = "")
+                      Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 1+q+y-n+((as.numeric(input$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,as.numeric(input$RT)-((as.numeric(Guide[3])+u-q+n-p))))), sep = "")
 
                       guides <- rbind(guides,Guide)
                       
@@ -4465,13 +4576,13 @@ observeEvent(input$search,{
                       
                     }
                     
-                    if ((grepl("TTTTT", Guide[4])) == TRUE){
+                    if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                       
                       Guide[7] <- as.numeric(Guide[7])-50
                       
                     }
                     
-                    if (((as.numeric(input$RT) - (as.numeric(Guide[3])+y-x)) >= 4) != TRUE) 
+                    if (((as.numeric(input$RT) - (as.numeric(Guide[3])+u-p-q)) < 5) == TRUE) 
                     {
                       
                       Guide[7] <- as.numeric(Guide[7])-6
@@ -4499,9 +4610,9 @@ observeEvent(input$search,{
           {
             
             
-            if(any((as.numeric(guides[,3])+u) <= input$RT) && any((as.numeric(guides[,3])+u) >= 0))
+            if((any((as.numeric(guides[,3])+u+y) <= input$RT & (as.numeric(guides[,3])+u) >= 0)) == TRUE)
             {
-              guides <- subset(guides, as.numeric(guides[,3])+u <= input$RT)
+              guides <- subset(guides, as.numeric(guides[,3])+u+y <= input$RT)
               guides <- subset(guides,(as.numeric(guides[,3])+u) >= 0)
               
             }else{
@@ -4585,6 +4696,8 @@ observeEvent(input$search,{
               x <- nchar(as.character(DNAchange))
               u <- nchar(as.character(DNAchange))
               
+              pe3b_ins <- u-1
+              pe3_ins <- 1
               
               Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = edit.pos),as.character(DNAchange), substr(Seq_plus_char, start = edit.pos+1, stop = search.width), sep = "")
               Seq_minus_rev_char_n <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_minus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
@@ -4627,6 +4740,10 @@ observeEvent(input$search,{
               x <- as.numeric(x)* (-1)  
               
               m <- z-1
+              
+              g <- 1
+              
+              q <- 1
               
               
               if(((substr(Seq_plus, start = edit.pos+1, stop = edit.pos-x)) == (as.character(DNAchange)))==TRUE){
@@ -4763,6 +4880,8 @@ observeEvent(input$search,{
               
               x <- nchar(as.character(DNAchange))
               
+              q <- 1
+              
               m <- z-1
               
               x <- as.numeric(x)*(-1)  
@@ -4792,6 +4911,8 @@ observeEvent(input$search,{
               x <- as.numeric(x)* (-1)  
               
               m <- z-1
+              
+              q <- 1
               
               
             }
@@ -4864,7 +4985,7 @@ observeEvent(input$search,{
           ## Upstream PAM for PRIME 
           
           primeUpstreamPAM <- substr(Seq_plus_char, 56,edit.pos+6)  
-          primeUpstreamPAM2 <- substr(Seq_minus_rev_char,edit.pos-4,246)
+          primeUpstreamPAM2 <- substr(Seq_minus_rev_char,edit.pos-4-p,246-p)
 
           ## prime edits possible:
           
@@ -4946,13 +5067,13 @@ observeEvent(input$search,{
                         
                       }
                       
-                      if ((grepl("TTTTT", Guide[4])) == TRUE){
+                      if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                         
                         Guide[7] <- as.numeric(Guide[7])-50
                         
                       }
                       
-                      if (((as.numeric(input$RT) - (as.numeric(Guide[3])+y+x)) >= 4) != TRUE)
+                      if (((as.numeric(input$RT) - (as.numeric(Guide[3])+n-q+u-p)) < 5) == TRUE)
                       {
                         
                         Guide[7] <- as.numeric(Guide[7])-6
@@ -4979,7 +5100,7 @@ observeEvent(input$search,{
             
             if(is.null(primeeditable2) != TRUE){
             
-              ## AntiSense strand
+            ## Antisense strand
             
             for (i in 1:nrow(primeeditable2df))
               for (j in 1:(nchar(primeeditable2df[1,2])-2))
@@ -4993,13 +5114,13 @@ observeEvent(input$search,{
                       
                     if(nchar(substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+148,j+167)) == 20){
                       
-                      Guide <- c("1",substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+148,j+167),j, as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],((j+151+x)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+151+x)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
+                      Guide <- c("1",substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+148-p,j+167-p),j-m-n, as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],((j+151+x-p)+(as.numeric(input$PBS)))-(as.numeric(input$RT)+as.numeric(input$PBS)),((j+151+x-p)+(as.numeric(input$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
                       
                       Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                       
                       Guide[4] <- as.character(reverse(DNAStringSet(Guide[4])))
                       
-                      if((substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+167,j+167) == "G") == FALSE)
+                      if((substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+167-p,j+167-p) == "G") == FALSE)
                       {
                         
                         Guide[2] <- paste("g",Guide[2], sep = "") 
@@ -5014,13 +5135,13 @@ observeEvent(input$search,{
                         
                       }
                       
-                      if ((grepl("TTTTT", Guide[4])) == TRUE){
+                      if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                         
                         Guide[7] <- as.numeric(Guide[7])-50
                         
                       }
                       
-                      if (((as.numeric(input$RT) - (as.numeric(Guide[3])+y-x)) >= 4) != TRUE)   
+                      if (((as.numeric(input$RT) - (as.numeric(Guide[3])-q+u+n-p)) < 5) == TRUE)   
                       {
                         
                         Guide[7] <- as.numeric(Guide[7])-6
@@ -5029,9 +5150,10 @@ observeEvent(input$search,{
                       
                       Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
                   
-                      Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+v+x+z+p-m))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT)-(as.numeric(Guide[3])+p-m-y+v)))), sep = "")
+                      Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(input$RT)-((as.numeric(Guide[3])+v+x+z+n))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(input$RT)-(as.numeric(Guide[3])-y+v+n)))), sep = "")
 
                       guides <- rbind(guides,Guide)
+
                       
                     }
                     }
@@ -5045,10 +5167,10 @@ observeEvent(input$search,{
           
           if (is.null(guides)!= TRUE)
           {
-            if(any((as.numeric(guides[,3])+u+n) <= input$RT) == TRUE)
+            if(any((as.numeric(guides[,3])+u+n) <= input$RT & (as.numeric(guides[,3])) > 0) == TRUE)
             {
               guides <- subset(guides, as.numeric(guides[,3])+u+n <= input$RT)
-              
+              guides <- subset(guides, as.numeric(guides[,3]) > 0)
 
             }else{
               
@@ -5108,7 +5230,7 @@ observeEvent(input$search,{
           
           output$myText <- renderText({
             
-            "Edit is too far away, you might increase the RT length"
+            "Edit is too far away, you might increase the RTT length"
           })
         }
         else if(is.null(guides)== TRUE & is.null(s) != TRUE){
@@ -5237,7 +5359,7 @@ observeEvent(input$search,{
             {
               if(nchar(substr(Seq_minus_char,j-20,j-1)) == 20){
                 
-                nickingGuideS <- c(substr(Seq_minus_char,j-20,j-1),154-j,substr(nickforSensePAM,j,j+2),"Antisense", "PE3")
+                nickingGuideS <- c(substr(Seq_minus_char,j-20,j-1),154- j-pe3_ins,substr(nickforSensePAM,j,j+2),"Antisense", "PE3")
                 
                 if(substr(nickingGuideS[1],1,1) != "G")
                 {
@@ -5253,7 +5375,7 @@ observeEvent(input$search,{
             {
               if(nchar(substr(Seq_minus_char_n,j-20,j-1)) == 20){
                 
-                PE3b_nickingGuideS <- c(substr(Seq_minus_char_n,j-20,j-1),154-z-j+del_minus_edit,substr(PE3b_nickforSensePAM,j,j+2),"Antisense","PE3b")
+                PE3b_nickingGuideS <- c(substr(Seq_minus_char_n,j-20,j-1),154-z-j+del_minus_edit+pe3b_ins,substr(PE3b_nickforSensePAM,j,j+2),"Antisense","PE3b")
                 
                 if(substr(PE3b_nickingGuideS[1],1,1) != "G")
                 {
@@ -5276,46 +5398,49 @@ observeEvent(input$search,{
                 if (isTruthy(SelectedpegRNA[f,8] == "Sense")) {
                 
                 currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforSense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,2])+as.numeric(guidesdf_ordered[f,5])), "PAM" = nickingguidesforSense[,3], "PAM-Strand" = nickingguidesforSense[,4], "System" = nickingguidesforSense[,5],  stringsAsFactors = FALSE)
-                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
-                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+                currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
                 
                 currentnickingguidesdf3 <- NULL
                 
-                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
+                if(any(as.numeric(guidesdf_ordered[f,5]) - (currentnickingguidesdf[,2])+u) < 18)
                 {
                   # Check if the edited is included in the nicking guide protospacer
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-(as.numeric(guidesdf_ordered[f,5])+u)),]
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
-                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
-                  
-                  # Change minus for PE3b
-                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
-                  
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick-u > -16 & currentnickingguidesdf3$DistfromInitialNick+u < 11),]
+
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
                 
                 }
                 else if (isTruthy(SelectedpegRNA[f,8] == "Antisense")) {
-              
-                currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
-                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
-                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+
+                currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])+n+m-p-t), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
+                
+                # Change minus for PE3
+                currentnickingguidesdf$DistfromInitialNick <- currentnickingguidesdf$DistfromInitialNick*(-1)
+                
+                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+                currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
                 
                 currentnickingguidesdf3 <- NULL
                 
-                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
+                if(any((as.numeric(guidesdf_ordered[f,5])+n+m-p-t) - currentnickingguidesdf[,2]) < 18)
                 {
+                  
                   # Check if the edited is included in the nicking guide protospacer
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
-                  
-                  # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
-                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 16 & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) > (-7)),]
 
-                  # Change minus for PE3b
-                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
-                  
+                  # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which((currentnickingguidesdf3$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 34 & currentnickingguidesdf3$DistfromInitialNick > (-11)),]
+
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
@@ -5328,14 +5453,11 @@ observeEvent(input$search,{
                 caption = "Nicking guide Table",
                 options = list(dom = 'tp')
                 )
-             
-              
+
         }
         
-      }
-        
         ## Download Button for selected download
-
+        
         output$downloadData <- downloadHandler(
           filename = function() {
             paste('pegRNA Oligos for cloning-',input$Variant, "-", Sys.Date(), '.csv', sep='')
@@ -5355,22 +5477,21 @@ observeEvent(input$search,{
               if (isTruthy(SelectedpegRNA[f,8] == "Sense")) {
                 
                 currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforSense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,2])+as.numeric(guidesdf_ordered[f,5])), "PAM" = nickingguidesforSense[,3], "PAM-Strand" = nickingguidesforSense[,4], "System" = nickingguidesforSense[,5],  stringsAsFactors = FALSE)
-                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
-                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+                currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
                 
                 currentnickingguidesdf3 <- NULL
                 
-                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
+                if(any(as.numeric(guidesdf_ordered[f,5]) - (currentnickingguidesdf[,2])+u) < 18)
                 {
                   # Check if the edited is included in the nicking guide protospacer
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-(as.numeric(guidesdf_ordered[f,5])+u)),]
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
-                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
-                  
-                  # Change minus for PE3b
-                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
-                  
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick-u > -16 & currentnickingguidesdf3$DistfromInitialNick+u < 11),]
+
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
@@ -5378,55 +5499,60 @@ observeEvent(input$search,{
               }
               else if (isTruthy(SelectedpegRNA[f,8] == "Antisense")) {
                 
-                currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
-                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
-                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+                currentnickingguidesdf <- data.frame("Protospacer" = nickingguidesforAntisense[,1],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,2])+as.numeric(guidesdf_ordered[f,5])+n+m-p-t), "PAM" = nickingguidesforAntisense[,3], "PAM-Strand" = nickingguidesforAntisense[,4],"System" = nickingguidesforAntisense[,5], stringsAsFactors = FALSE)
+                
+                # Change minus for PE3
+                currentnickingguidesdf$DistfromInitialNick <- currentnickingguidesdf$DistfromInitialNick*(-1)
+                
+                currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+                currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+                currentnickingguidesdf2.1[,2] <- currentnickingguidesdf2.1[2] + del_minus_edit
+                currentnickingguidesdf2.2[,2] <- currentnickingguidesdf2.2[2] + del_minus_edit
                 
                 currentnickingguidesdf3 <- NULL
                 
-                if(any(as.numeric(guidesdf_ordered[f,5]) - currentnickingguidesdf[,2]) < 18)
+                if(any((as.numeric(guidesdf_ordered[f,5])+n+m-p-t) - currentnickingguidesdf[,2]) < 18)
                 {
+                  
                   # Check if the edited is included in the nicking guide protospacer
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guidesdf_ordered[f,5])),]
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 16 & (currentnickingguidesdf$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) > (-7)),]
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
-                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
-                  
-                  # Change minus for PE3b
-                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
-                  
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which((currentnickingguidesdf3$DistfromInitialNick + (as.numeric(guidesdf_ordered[f,5]))) < 34 & currentnickingguidesdf3$DistfromInitialNick > (-11)),]
+                
                 }
                 
                 currentnickingguidesdf <- rbind(currentnickingguidesdf3,currentnickingguidesdf2.1,currentnickingguidesdf2.2)
                 
               }
-            
-            #write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guidesdf_ordered[f,2]), "Protospacer(Sense)" = paste("cacc", guidesdf_ordered[f,3],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guidesdf_ordered[f,3])),sep = "") , "TargetPos." = guidesdf_ordered[f,2], "Extension(Sense)" = paste("gtgc",guidesdf_ordered[f,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guidesdf_ordered[f,4])), sep = ""), "PAM" = guidesdf_ordered[f,5], "PAM-Strand" = guidesdf_ordered[f,6], "PBS" = input$PBS, "RTT" = input$RT,"Nicking guide Protospacer" = nicksfordownload[l,1], stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
-            write.csv(data.frame(guidesdf_ordered[f,],"Nicking guide Protospacer Sense" = paste("cacc",currentnickingguidesdf[l,1], sep = ""),"Nicking guide Protospacer Antisense" = paste("aaac",as.character(reverseComplement(DNAStringSet(currentnickingguidesdf[l,1]))), sep = ""), "Distance from initial nicking site" = currentnickingguidesdf[l,2],"System" = currentnickingguidesdf[l,5], stringsAsFactors = FALSE), con, sep = ",", row.names = FALSE)
-            
+              
+              #write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guidesdf_ordered[f,2]), "Protospacer(Sense)" = paste("cacc", guidesdf_ordered[f,3],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guidesdf_ordered[f,3])),sep = "") , "TargetPos." = guidesdf_ordered[f,2], "Extension(Sense)" = paste("gtgc",guidesdf_ordered[f,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guidesdf_ordered[f,4])), sep = ""), "PAM" = guidesdf_ordered[f,5], "PAM-Strand" = guidesdf_ordered[f,6], "PBS" = input$PBS, "RTT" = input$RT,"Nicking guide Protospacer" = nicksfordownload[l,1], stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
+              write.csv(data.frame(guidesdf_ordered[f,],"Nicking guide Protospacer Sense" = paste("cacc",currentnickingguidesdf[l,1], sep = ""),"Nicking guide Protospacer Antisense" = paste("aaac",as.character(reverseComplement(DNAStringSet(currentnickingguidesdf[l,1]))), sep = ""), "Distance from initial nicking site" = currentnickingguidesdf[l,2],"System" = currentnickingguidesdf[l,5], stringsAsFactors = FALSE), con, sep = ",", row.names = FALSE)
+              
             }else if (is.null(l) == TRUE){
               
-            #write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guidesdf_ordered[f,2]), "Protospacer(Sense)" = paste("cacc", guidesdf_ordered[f,3],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guidesdf_ordered[f,3])),sep = "") , "TargetPos." = guidesdf_ordered[f,2], "Extension(Sense)" = paste("gtgc",guidesdf_ordered[f,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guidesdf_ordered[f,4])), sep = ""), "PAM" = guidesdf_ordered[f,5], "PAM-Strand" = guidesdf_ordered[f,6], "PBS" = input$PBS, "RTT" = input$RT, stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
-            write.csv(data.frame(guidesdf_ordered[f,]), con, sep = ",", row.names = FALSE)
+              #write.csv(data.frame("Variant" = input$Variant,"Score" = as.numeric(guidesdf_ordered[f,2]), "Protospacer(Sense)" = paste("cacc", guidesdf_ordered[f,3],"gtttt", sep = ""),"Protospacer(Antisense)" = paste("ctctaaaac",reverseComplement(DNAStringSet(guidesdf_ordered[f,3])),sep = "") , "TargetPos." = guidesdf_ordered[f,2], "Extension(Sense)" = paste("gtgc",guidesdf_ordered[f,4],sep = ""), "Extension(Antisense)" = paste("aaaa",reverseComplement(DNAStringSet(guidesdf_ordered[f,4])), sep = ""), "PAM" = guidesdf_ordered[f,5], "PAM-Strand" = guidesdf_ordered[f,6], "PBS" = input$PBS, "RTT" = input$RT, stringsAsFactors = FALSE), con, sep = ",", row.names=FALSE)
+              write.csv(data.frame(guidesdf_ordered[f,]), con, sep = ",", row.names = FALSE)
               
             }
           }
         )
+        
+        ## Download Button for all pegRNAs
+        
+        
+        output$downloadData2 <- downloadHandler(
+          filename = function() {
+            paste('pegRNA Oligos for cloning-',input$Variant, "-", Sys.Date(), '.csv', sep='')
+          },
+          content = function(con) {
             
-            ## Download Button for all pegRNAs
+            write.csv(data.frame(guidesdf_ordered[,]), con, sep = ",", row.names = FALSE)
             
-            
-            output$downloadData2 <- downloadHandler(
-              filename = function() {
-                paste('pegRNA Oligos for cloning-',input$Variant, "-", Sys.Date(), '.csv', sep='')
-              },
-              content = function(con) {
-                
-                write.csv(data.frame(guidesdf_ordered[,]), con, sep = ",", row.names = FALSE)
-
-            }
+          }
         )
         
+      }
 
       } 
         
@@ -5443,7 +5569,10 @@ observeEvent(input$search,{
         
         inFile <- input$file1
         
-        inFile <- read.csv(inFile$datapath, header = TRUE, sep = ";", stringsAsFactors = FALSE)
+        L <- readLines(inFile$datapath, n = 1)
+        if (grepl(";", L)) inFile <- read.csv2(inFile$datapath) else inFile <- read.csv(inFile$datapath)
+
+        #inFile <- read.csv(inFile$datapath, header = TRUE, sep = ";", stringsAsFactors = FALSE)
         
         withProgress(message = 'Generating Oligos', value = 0, {
         
@@ -8378,6 +8507,7 @@ observeEvent(input$search,{
             v <- 0
             w <- 0
             q <- 0
+            t <- 0
             del_minus_edit <- 0
             
             guides <- NULL
@@ -8503,7 +8633,7 @@ observeEvent(input$search,{
                 }else{
                 
                 
-                  NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","CHECK DEL!",-999,"")
+                  NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"CHECK DELETION!")
                   all_guides <- rbind(all_guides, NoGuide)
                   next
                 
@@ -8517,6 +8647,7 @@ observeEvent(input$search,{
               y <- as.numeric(((nchar(inFile[k,]$Edit))-1)/2)
               n <- y-1
               v <- 1
+              t <- n
               
               DNAchange <- DNAStringSet(substr(inFile[k,]$Edit,2+y,2+(y*2)))
               anti_DNAchange <- complement(DNAchange)
@@ -8541,7 +8672,7 @@ observeEvent(input$search,{
                 
                 }else{
                 
-                  NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAA","no PAM","CHECK SUB!",-999,"")
+                  NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"CHECK SUBSTITUTION!")
                   all_guides <- rbind(all_guides, NoGuide)
                   next
                 }
@@ -8552,9 +8683,8 @@ observeEvent(input$search,{
 
             ## Upstream PAM for PRIME 
             
-              primeUpstreamPAM <- substr(Seq_plus_char, 56,edit.pos+6)  
-              primeUpstreamPAM2 <- substr(Seq_minus_rev_char,edit.pos-4,246)
-            
+              primeUpstreamPAM <- substr(Seq_minus_char, 56+p,edit.pos+6+p)  
+              primeUpstreamPAM2 <- substr(Seq_plus_rev_char,edit.pos-4,246)
             
             ## prime edits possible:
             
@@ -8616,14 +8746,14 @@ observeEvent(input$search,{
                     if (grepl( "AGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE || grepl( "CGG", substr(primeeditabledf[i,2],j,j+2)) == TRUE || grepl( "TGG", substr(primeeditabledf[i,2], j,j+2)) == TRUE ){
                       
                       
-                      if(nchar(substr(Seq_minus_char_n[primeeditabledf[i,1]],(j+35),j+54)) == 20)
+                      if(nchar(substr(Seq_minus_char_n[primeeditabledf[i,1]],(j+35+p),j+54+p)) == 20)
                       {
-                        if((76-j+u+y) <= as.numeric(inFile[k,]$RT))
+                        if((100-j+u+y) <= as.numeric(inFile[k,]$RT))
                         {
  
-                        Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char[primeeditabledf[i,1]],j+35,j+54),100-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char_n[primeeditabledf[i,1]],(j+52) - as.numeric(inFile[k,]$PBS),((j+52) - (as.numeric(inFile[k,]$PBS)))+ (as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Antisense")
+                        Guide <- c(row.names(inFile[k,]),substr(Seq_minus_char[primeeditabledf[i,1]],j+35+p,j+54+p),100-j,as.character(reverse(DNAStringSet(substr(Seq_plus_rev_char_n[primeeditabledf[i,1]],(j+52+p) - as.numeric(inFile[k,]$PBS),((j+52) - (as.numeric(inFile[k,]$PBS)))+ (as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)-1+p))))),substr(primeeditabledf[i,2], j,j+2), "Antisense")
                         
-                        if(substr(Seq_minus_char_n[primeeditabledf[i,1]],j+35,j+35) != "G")
+                        if(substr(Seq_minus_char[primeeditabledf[i,1]],j+35+p,j+35+p) != "G")
                         {
                           
                           Guide[2] <- paste("g",Guide[2], sep = "") 
@@ -8638,13 +8768,13 @@ observeEvent(input$search,{
                           
                         }
                         
-                        if ((grepl("TTTTT", Guide[4])) == TRUE){
+                        if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                           
                           Guide[7] <- as.numeric(Guide[7])-50
                           
                         }
                         
-                        if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+y+u)) >= 4) != TRUE) 
+                        if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+n-q+u)) < 5) == TRUE) 
                         {
                           
                           Guide[7] <- as.numeric(Guide[7])-6
@@ -8653,17 +8783,15 @@ observeEvent(input$search,{
 
                         Guide[7] <- as.numeric(Guide[7]) - as.numeric(Guide[3])
                         
-                        #Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 1+y+q+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+u-q))))), sep = "")
-
                         Guide[8] <- paste(reverseComplement(DNAStringSet(substring(Guide[4], first = 1+q+y-n+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3]))))))),as.character(DNAchange_char_tagged),reverseComplement(DNAStringSet(substring(Guide[4],1,as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+u-q+n))))), sep = "")
                         
                         guides <- rbind(guides,Guide)
                         
                         
-                        }else if ((edit.pos+1-j+u+y) > as.numeric(inFile[k,]$RT))
+                        }else if ((100-j+u+y) > as.numeric(inFile[k,]$RT))
                         {
                           
-                          NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
+                          NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
                           
                           next
                           
@@ -8685,10 +8813,10 @@ observeEvent(input$search,{
                   {
                     if (grepl( "GGA", substr(primeeditable2df[i,2], j,j+2)) == TRUE || grepl( "GGG", substr(primeeditable2df[i,2], j,j+2)) == TRUE || grepl( "GGC", substr(primeeditable2df[i,2],j,j+2)) == TRUE || grepl( "GGT", substr(primeeditable2df[i,2], j,j+2)) == TRUE ){
                       
-                      if((j+u+y) <= as.numeric(inFile[k,]$RT))
+                      if((j-(z-1)-p-v+u+y) <= as.numeric(inFile[k,]$RT))
                       {
-                        if((j-z) >= 0)
-                        {
+                      if(j-(z-1)-p-v > 0)
+                      {
                       
                          Guide <- c(row.names(inFile[k,]),substr(Seq_plus_rev_char[primeeditable2df[i,1]],j+148,j+167),j-(z-1)-p-v, as.character(reverse(DNAStringSet(substr(Seq_minus_char_n[primeeditable2df[i,1]],((j+150-(z-1)+u)+(as.numeric(inFile[k,]$PBS)))-(as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)),((j+150-(z-1)+u)+(as.numeric(inFile[k,]$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Sense")
 
@@ -8713,13 +8841,13 @@ observeEvent(input$search,{
                           
                         }
                         
-                        if ((grepl("TTTTT", Guide[4])) == TRUE){
+                        if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                           
                           Guide[7] <- as.numeric(Guide[7])-50
                           
                         }
                         
-                        if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+y+u)) >= 4) != TRUE) 
+                        if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+u-p-q)) < 5) == TRUE)
                         {
                           
                           Guide[7] <- as.numeric(Guide[7])-6
@@ -8738,18 +8866,18 @@ observeEvent(input$search,{
                         
                         }
                       
-                      else if ((j-z) < 0)
+                      else if ((j-(z-1)-p-v <= 0) == TRUE)
                       {
-                        NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","No Prime Editing guide found!",-999,"")
+                        NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
                         
                         next
                       }
 
                         
-                    }else if ((j+u+y) > as.numeric(inFile[k,]$RT))
+                    }else if ((j-(z-1)-p-v+u+y) > as.numeric(inFile[k,]$RT))
                       {
                       
-                      NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
+                      NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
                       
                       
                       next
@@ -8767,7 +8895,7 @@ observeEvent(input$search,{
             }
               else{
               
-              NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","CHECK GENOME COORDINATES!",-999,"")
+              NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"CHECK GENOME COORDINATES!")
               all_guides <- rbind(all_guides,NoGuide)
               next
               
@@ -8812,7 +8940,7 @@ observeEvent(input$search,{
                 x <- nchar(as.character(DNAchange))
                 u <- nchar(as.character(DNAchange))
                 
-                x <- as.numeric(x)
+                #x <- as.numeric(x)
                 
                 if(inFile[k,]$Mode == "Correct_Mutation")
                 {
@@ -8823,7 +8951,8 @@ observeEvent(input$search,{
                   Seq_minus_rev_char <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_minus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
                   
                 }
-                else{
+                else if (inFile[k,]$Mode == "Edit") 
+                {
                   
                 Seq_plus_char_n <- paste(substr(Seq_plus_char, start = 1, stop = edit.pos),as.character(DNAchange), substr(Seq_plus_char, start = edit.pos+1, stop = search.width), sep = "")
                 Seq_minus_rev_char_n <- paste(substr(Seq_minus_rev_char, start = 1, stop = edit.pos),as.character(anti_DNAchange), substr(Seq_minus_rev_char, start = edit.pos+1, stop = search.width), sep = "")
@@ -8880,7 +9009,7 @@ observeEvent(input$search,{
                 }else{
                   
                   
-                  NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","CHECK DEL!",-999,"")
+                  NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"CHECK DELETION!")
                   all_guides <- rbind(all_guides, NoGuide)
                   next
                   
@@ -8936,7 +9065,7 @@ observeEvent(input$search,{
                   
                 }else{
                   
-                  NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAA","no PAM","CHECK SUB!",-999,"")
+                  NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"CHECK SUBSTITUTION!")
                   all_guides <- rbind(all_guides, NoGuide)
                   next
                 }
@@ -8950,7 +9079,8 @@ observeEvent(input$search,{
               ## Upstream PAM for PRIME 
               
               primeUpstreamPAM <- substr(Seq_plus_char, 56,edit.pos+6)  
-              primeUpstreamPAM2 <- substr(Seq_minus_rev_char,edit.pos-4,246)
+              primeUpstreamPAM2 <- substr(Seq_minus_rev_char,edit.pos-4-p,246-p)
+              
 
               ## prime edits possible:
               
@@ -9013,7 +9143,10 @@ observeEvent(input$search,{
                         
                         if((nchar(substr(Seq_plus_char[primeeditabledf[i,1]],(j+35),j+54)) == 20))
                         {
-                          if(as.numeric(100-j)+u-p+y <= as.numeric(inFile[k,]$RT))
+                          if(((100-as.numeric(j))+u-p+y) <= as.numeric(inFile[k,]$RT))
+                          {
+                          
+                          if((100-as.numeric(j)) > 0)
                           {
 
                           Guide <- c(row.names(inFile[k,]),substr(Seq_plus_char[primeeditabledf[i,1]],j+35,j+54),100-j,as.character(reverse(DNAStringSet(substr(Seq_minus_rev_char_n[primeeditabledf[i,1]],(j+52) - as.numeric(inFile[k,]$PBS),((j+52) - (as.numeric(inFile[k,]$PBS)))+ (as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)-1))))),substr(primeeditabledf[i,2], j,j+2), "Sense")
@@ -9034,13 +9167,13 @@ observeEvent(input$search,{
                             
                           }
                           
-                          if ((grepl("TTTTT", Guide[4])) == TRUE){
+                          if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                             
                             Guide[7] <- as.numeric(Guide[7])-50
                             
                           }
                           
-                          if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+y+u)) >= 4) != TRUE) 
+                          if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+n-q+u-p)) < 5) == TRUE) 
                           {
                             
                             Guide[7] <- as.numeric(Guide[7])-6
@@ -9053,13 +9186,22 @@ observeEvent(input$search,{
                           
                           guides <- rbind(guides,Guide)
                           
-                          }else if(as.numeric(100-j)+u-p+y > as.numeric(inFile[k,]$RT))
+                          }else if((100-as.numeric(j)) < 0)
                           {
-                            NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
+                            NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
                             
                             next
                             
                           }
+                          
+                          }else if((100 -as.numeric(j)+u-p+y) > as.numeric(inFile[k,]$RT))
+                          {
+                            NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
+                            
+                            next
+                            
+                          }
+                          
                         }
                         
                       } 
@@ -9083,17 +9225,17 @@ observeEvent(input$search,{
                           if((as.numeric(j)+u-p+y <= as.numeric(inFile[k,]$RT)))
                           {
                             
-                          if((as.numeric(j)-z) >= 0)
+                          if((as.numeric(j)-m-n) > 0)
                           {
              
-                          Guide <- c(row.names(inFile[k,]),substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+148,j+167),j,as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],((j+edit.pos+1+x)+(as.numeric(inFile[k,]$PBS)))-(as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)),((j+edit.pos+1+x)+(as.numeric(inFile[k,]$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
+                          Guide <- c(row.names(inFile[k,]),substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+148-p,j+167-p),j-m-n,as.character(reverse(DNAStringSet(substr(Seq_plus_char_n[primeeditable2df[i,1]],((j+edit.pos+1+x-p)+(as.numeric(inFile[k,]$PBS)))-(as.numeric(inFile[k,]$RT)+as.numeric(inFile[k,]$PBS)),((j+edit.pos+1+x-p)+(as.numeric(inFile[k,]$PBS)))-1)))),as.character(reverse(DNAStringSet(substr(primeeditable2df[i,2], j,j+2)))), "Antisense")
 
                           Guide[2] <- as.character(reverse(DNAStringSet(Guide[2])))
                           
                           Guide[4] <- as.character(reverse(DNAStringSet(Guide[4])))
                           
                           
-                          if((substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+167,j+167) != "G") == TRUE)
+                          if((substr(Seq_minus_rev_char[primeeditable2df[i,1]],j+167-p,j+167-p) != "G") == TRUE)
                           {
                             
                             Guide[2] <- paste("g",Guide[2], sep = "") 
@@ -9108,13 +9250,13 @@ observeEvent(input$search,{
                             
                           }
                           
-                          if ((grepl("TTTTT", Guide[4])) == TRUE){
+                          if ((grepl("TTTTT", Guide[4])) == TRUE || (grepl("TTTTT", Guide[2])) == TRUE){
                             
                             Guide[7] <- as.numeric(Guide[7])-50
                             
                           }
                           
-                          if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])+y+u)) >= 4) != TRUE) 
+                          if (((as.numeric(inFile[k,]$RT) - (as.numeric(Guide[3])-q+u+n)) < 5) == TRUE) 
                           {
                             
                             Guide[7] <- as.numeric(Guide[7])-6
@@ -9125,14 +9267,13 @@ observeEvent(input$search,{
                           
                           Guide[7] <- as.numeric(Guide[7])-as.numeric(Guide[3])
                           
-                          Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+v+x+z+p-m))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3])+p-m-y+v)))), sep = "")
-                          
+                          Guide[8] <-paste(substring(Guide[4],1,1+as.numeric(inFile[k,]$RT)-((as.numeric(Guide[3])+v+x+z+n))),as.character(DNAchange_char_tagged), substring(Guide[4], first = 2+((as.numeric(inFile[k,]$RT)-(as.numeric(Guide[3])-y+v+n)))), sep = "")
                           
                           guides <- rbind(guides,Guide)
                           
-                            }else if((as.numeric(j)-z) < 0)
+                            }else if((as.numeric(j)-m-n) < 0)
                             {
-                              NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
+                              NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
 
                               next
                               
@@ -9141,7 +9282,7 @@ observeEvent(input$search,{
                           
                           }else if(as.numeric(j)+u-p+y > inFile[k,]$RT)
                           {
-                            NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","Edit too far away, try to increase the RT length!",-999,"")
+                            NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"No PAM, you might increase RTT length!")
 
                             next
                             
@@ -9159,7 +9300,7 @@ observeEvent(input$search,{
               }
               else{
                 
-                NoGuide <- c(row.names(inFile[k,]),as.character("AAAAAAAAAAAAAAAAA"),0,"AAAAA","no PAM","CHECK GENOME COORDINATES!",-999,"")
+                NoGuide <- c(row.names(inFile[k,]),as.character(""),0,"","no PAM","",-999,"CHECK GENOME COORDINATES!")
                 all_guides <- rbind(all_guides,NoGuide)
                 next
                 
@@ -9256,21 +9397,21 @@ observeEvent(input$search,{
               nickingguidesforSense  <- rbind(nickingguidesforSense,nickingGuideS,PE3b_nickingGuideS)
               
               currentnickingguidesdf <- data.frame("Variant" = inFile[k,]$Variant, "Protospacer_PE2" = guide_new[2],"Protospacer" = nickingguidesforSense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforSense[,3])+as.numeric(guide_new[3])), "PAM" = nickingguidesforSense[,4], "PAM-Strand" = nickingguidesforSense[,5], "System" = nickingguidesforSense[,6],  stringsAsFactors = FALSE)
-              currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
-              currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+              
+              currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+              currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+              currentnickingguidesdf2.1[,4] <- currentnickingguidesdf2.1[4] + del_minus_edit
+              currentnickingguidesdf2.2[,4] <- currentnickingguidesdf2.2[4] + del_minus_edit
               
               currentnickingguidesdf3 <- NULL
               
-              if((any((as.numeric(guide_new[3]) - as.numeric(currentnickingguidesdf[,4])) < 18)) == TRUE)
+              if((any((as.numeric(guide_new[3]) - (currentnickingguidesdf[,4]+u)) < 18)) == TRUE)
               {
                 # Check if the edited is included in the nicking guide protospacer
-                currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guide_new[3])),]
+                currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-(as.numeric(guide_new[3])+u)),]
                 
                 # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
                 currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
-                
-                # Change minus for PE3b
-                currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
                 
               }
               else{}
@@ -9329,24 +9470,27 @@ observeEvent(input$search,{
               }  
               
               nickingguidesforAntisense  <- rbind(nickingguidesforAntisense,nickingGuideAS,PE3b_nickingGuideAS)
-                
-              currentnickingguidesdf <- data.frame("Variant" = inFile[k,]$Variant,"Protospacer_PE2" = guide_new[2],"Protospacer" = nickingguidesforAntisense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,3])+as.numeric(guide_new[3])), "PAM" = nickingguidesforAntisense[,4], "PAM-Strand" = nickingguidesforAntisense[,5],"System" = nickingguidesforAntisense[,6], stringsAsFactors = FALSE)
-              currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > 40 & currentnickingguidesdf$DistfromInitialNick < 100),]
-              currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & currentnickingguidesdf$DistfromInitialNick > -100 & currentnickingguidesdf$DistfromInitialNick < -40),]
+              
+              currentnickingguidesdf <- data.frame("Variant" = inFile[k,]$Variant,"Protospacer_PE2" = guide_new[2],"Protospacer" = nickingguidesforAntisense[,2],"DistfromInitialNick" = (as.numeric(nickingguidesforAntisense[,3])+as.numeric(guide_new[3])+n+m-p-t), "PAM" = nickingguidesforAntisense[,4], "PAM-Strand" = nickingguidesforAntisense[,5],"System" = nickingguidesforAntisense[,6], stringsAsFactors = FALSE)
+              
+              # Change minus for PE3
+              currentnickingguidesdf$DistfromInitialNick <- currentnickingguidesdf$DistfromInitialNick*(-1)
+
+              currentnickingguidesdf2.1 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > 40 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < 100),]
+              currentnickingguidesdf2.2 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3' & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) > -100 & (currentnickingguidesdf$DistfromInitialNick + del_minus_edit) < -40),]
+              currentnickingguidesdf2.1[,4] <- currentnickingguidesdf2.1[4] + del_minus_edit
+              currentnickingguidesdf2.2[,4] <- currentnickingguidesdf2.2[4] + del_minus_edit
               
               currentnickingguidesdf3 <- NULL
                 
-                if((any((as.numeric(guide_new[3]) - as.numeric(currentnickingguidesdf[,4])) < 18)) == TRUE)
+                if((any(((as.numeric(guide_new[3])+n+m-p-t) - as.numeric(currentnickingguidesdf[,4])) < 18)) == TRUE)
                 {
                   # Check if the edited is included in the nicking guide protospacer
-                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & -currentnickingguidesdf$DistfromInitialNick < 18-as.numeric(guide_new[3])),]
+                  currentnickingguidesdf3 <- currentnickingguidesdf[which(currentnickingguidesdf$System == 'PE3b' & (currentnickingguidesdf$DistfromInitialNick+as.numeric(guide_new[3])) < 16 & (currentnickingguidesdf$DistfromInitialNick+as.numeric(guide_new[3])) > (-7)),]
                   
                   # Check if the Cas9 binding sites of the nicking guide overlaps with the Cas9 binding site which is used for PE
-                  currentnickingguidesdf3 <- currentnickingguidesdf3[which(currentnickingguidesdf3$DistfromInitialNick > -16 & currentnickingguidesdf3$DistfromInitialNick < 11),]
-                  
-                  # Change minus for PE3b
-                  currentnickingguidesdf3$DistfromInitialNick <- currentnickingguidesdf3$DistfromInitialNick*(-1)
-                  
+                  currentnickingguidesdf3 <- currentnickingguidesdf3[which((currentnickingguidesdf3$DistfromInitialNick+as.numeric(guide_new[3])) < 34 & currentnickingguidesdf3$DistfromInitialNick > (-11)),]
+
                 }
                 else{}
                 
@@ -9379,7 +9523,7 @@ observeEvent(input$search,{
               
               }else {
                 
-                guidesdf <- subset(data.frame("Variant" = paste(inFile[as.numeric(guides[,1]),]$Variant,"_","PBS: ",inFile[as.numeric(guides[,1]),]$PBS,"RTT: ",inFile[as.numeric(guides[,1]),]$RTT), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(Sense)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], "Score" = as.numeric(guides[,7]), stringsAsFactors = FALSE), guides[,6] != "Edit too far away, try to increase the RT length!")
+                guidesdf <- subset(data.frame("Variant" = paste(inFile[as.numeric(guides[,1]),]$Variant,"_","PBS: ",inFile[as.numeric(guides[,1]),]$PBS,"RTT: ",inFile[as.numeric(guides[,1]),]$RTT),"Score" = as.numeric(guides[,7]), "Protospacer(Sense)" = guides[,2],"Protospacer(Antisense)" = as.character(reverseComplement(DNAStringSet(guides[,2]))), "EditPos." = guides[,3], "Extension(Sense)" = guides[,8], "PAM" = guides[,5], "PAM-Strand" = guides[,6], stringsAsFactors = FALSE), guides[,8] != "No PAM, you might increase RTT length!")
 
               }
               
