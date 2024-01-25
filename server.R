@@ -6,7 +6,6 @@
 # install.packages("shiny")
 # devtools::install_github("timelyportfolio/sweetalertR")
 # install.packages("BSgenome")
-# devtools::install_github("timelyportfolio/sweetalertR")
 
 #BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
 #BiocManager::install("BSgenome.Mmusculus.UCSC.mm10")
