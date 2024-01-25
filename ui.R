@@ -16,7 +16,8 @@
 # install.packages("V8"))
 # install.packages("shinybusy")
 # install.packages("shinydashboard")
-#install.packages("shinyWidgets")
+# install.packages("shinyWidgets
+# devtools::install_github("timelyportfolio/sweetalertR")
 
 library(shiny)
 library("purrr")
@@ -30,17 +31,7 @@ library(V8)
 library(shinybusy)
 library(shinydashboard)
 library(shinyWidgets)
-
-
-#library(rsconnect)
-#setwd("C:/Users/wien1/Desktop/R-wd/ShinyB&PEditing0.99 - With Reviews///")
-#options(repos = BiocManager::repositories())
-
-#rsconnect::setAccountInfo(name='cornlab',
-#                      token='CFFC0187DDBF6EBD4449F9E6AE0106E7',
-#                         secret='9hX7TZQHRCs4IuVVOqfwImGPXCdnsmffA4JTJ+nC')
-
-#rsconnect::deployApp(appName="ShinyBPEditing0999")
+library(sweetalertR)
 
 jscode <- "shinyjs.swal = function(params) { swal.apply(this, params); }"
 
